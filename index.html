@@ -1,627 +1,559 @@
+```react
+import React, { useState, useEffect } from 'react';
+import { Coffee, IceCream, CupSoda, Flame, Wind, MapPin, Phone, Instagram, X, Info, ShoppingBag, Utensils, Droplet, Croissant, Heart, Leaf } from 'lucide-react';
 
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>کافه نان درباری | Darbari Cafe & Bakery</title>
+// --- TRANSLATIONS DICTIONARY ---
+const t = {
+  cafeName: { fa: 'کافه نان درباری', en: 'Darbari Cafe & Bakery', ar: 'مقهى ومخبز درباري', tr: 'Darbari Kafe & Fırın' },
+  subtitle: { fa: 'DARBARI CAFE & BAKERY', en: 'PREMIUM CAFE & BAKERY', ar: 'مقهى ومخبز فاخر', tr: 'PREMIUM KAFE & FIRIN' },
+  hotDrinks: { fa: 'نوشیدنی گرم', en: 'Hot Drinks', ar: 'مشروبات ساخنة', tr: 'Sıcak İçecekler' },
+  herbalTeas: { fa: 'دمنوش‌ها', en: 'Herbal Teas', ar: 'شاي أعشاب', tr: 'Bitki Çayları' },
+  coldDrinks: { fa: 'نوشیدنی سرد', en: 'Cold Drinks', ar: 'مشروبات باردة', tr: 'Soğuk İçecekler' },
+  pastry: { fa: 'نان و شیرینی', en: 'Pastry & Bakery', ar: 'مخبوزات وحلويات', tr: 'Fırın & Tatlı' },
+  viewRecipe: { fa: 'مشاهده رسپی', en: 'View Recipe', ar: 'عرض الوصفة', tr: 'Tarifi Gör' },
+  recipeDetails: { fa: 'ترکیبات و رسپی', en: 'Ingredients & Recipe', ar: 'المكونات والوصفة', tr: 'İçindekiler ve Tarif' },
+  currency: { fa: 'تومان', en: 'Toman', ar: 'تومان', tr: 'Toman' },
+  price: { fa: 'قیمت:', en: 'Price:', ar: 'السعر:', tr: 'Fiyat:' },
+  contact: { fa: 'راه‌های ارتباطی', en: 'Contact Us', ar: 'تواصل معنا', tr: 'İletişim' },
+  address: { 
+    fa: 'شهرک راه آهن، میدان اتریش\nکافه نان درباری', 
+    en: 'Otrish Sq, Rah Ahan Town\nDarbari Cafe & Bakery', 
+    ar: 'ميدان وتريش، مدينة راه آهن\nمقهى ومخبز درباري', 
+    tr: 'Otrish Meydanı, Rah Ahan\nDarbari Kafe & Fırın' 
+  },
+  snappfood: { fa: 'اسنپ‌فود', en: 'Delivery', ar: 'توصيل', tr: 'Sipariş' },
+};
+
+// --- COMPLETE MENU DATA (36 Items) ---
+const menuData = [
+  // HOT DRINKS (Teas first, then Coffees)
+  { id: 19, catKey: 'hotDrinks', icon: Flame, price: '100,000', img: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'چای سیاه', en: 'Black Tea', ar: 'شاي أسود', tr: 'Siyah Çay' },
+    recipe: { fa: 'چای سیاه دمی لاهیجان تازه دم.', en: 'Freshly brewed traditional black tea.', ar: 'شاي أسود تقليدي مخمر طازجاً.', tr: 'Taze demlenmiş geleneksel siyah çay.' } },
+  { id: 18, catKey: 'hotDrinks', icon: Flame, price: '190,000', img: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'چای‌سبز گل یاس', en: 'Jasmine Green Tea', ar: 'شاي أخضر بالياسمين', tr: 'Yaseminli Yeşil Çay' },
+    recipe: { fa: 'چای سبز خالص همراه با شکوفه‌های معطر یاس.', en: 'Pure green tea with fragrant jasmine blossoms.', ar: 'شاي أخضر نقي مع أزهار الياسمين العطرة.', tr: 'Kokulu yasemin çiçekleriyle saf yeşil çay.' } },
+  { id: 1, catKey: 'hotDrinks', icon: Coffee, price: '200,000', img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'اسپرسو ۱۰۰ عربیکا', en: 'Espresso 100% Arabica', ar: 'اسبريسو ١٠٠٪ أرابيكا', tr: '%100 Arabica Espresso' },
+    recipe: { fa: 'عصاره‌گیری استاندارد از دانه‌های ۱۰۰٪ عربیکا.', en: 'Standard extraction of 100% Arabica beans.', ar: 'استخلاص قياسي لحبوب أرابيكا ١٠٠٪.', tr: '%100 Arabica çekirdeklerinden ekstraksiyon.' } },
+  { id: 2, catKey: 'hotDrinks', icon: Coffee, price: '170,000', img: 'https://images.unsplash.com/photo-1579992357154-faf4bde95b3d?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'اسپرسو ۸۰/۲۰ روبوستا', en: 'Espresso 80/20 Robusta', ar: 'اسبريسو ٨٠/٢٠ روبوستا', tr: 'Espresso 80/20 Robusta' },
+    recipe: { fa: 'ترکیب ۸۰٪ عربیکا و ۲۰٪ روبوستا.', en: 'Blend of 80% Arabica and 20% Robusta.', ar: 'مزيج ٨٠٪ أرابيكا و ٢٠٪ روبوستا.', tr: '%80 Arabica ve %20 Robusta karışımı.' } },
+  { id: 3, catKey: 'hotDrinks', icon: Coffee, price: '185,000', img: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'اسپرسو ماکیاتو', en: 'Espresso Macchiato', ar: 'اسبريسو مكياتو', tr: 'Espresso Macchiato' },
+    recipe: { fa: 'یک شات اسپرسو به همراه مقدار کمی فوم شیر.', en: 'Espresso shot with a small amount of milk foam.', ar: 'جرعة اسبريسو مع رغوة حليب خفيفة.', tr: 'Az miktarda süt köpüklü espresso.' } },
+  { id: 4, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1557006021-b85faa2bc5e2?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'هیزل نات ماکیاتو', en: 'Hazelnut Macchiato', ar: 'مكياتو البندق', tr: 'Fındıklı Macchiato' },
+    recipe: { fa: 'ترکیب اسپرسو، فوم شیر و سیروپ فندق.', en: 'Espresso, milk foam, and hazelnut syrup.', ar: 'اسبريسو، رغوة حليب وشراب البندق.', tr: 'Espresso, süt köpüğü ve fındık şurubu.' } },
+  { id: 5, catKey: 'hotDrinks', icon: Coffee, price: '230,000', img: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'لاته', en: 'Cafe Latte', ar: 'كافيه لاتيه', tr: 'Caffe Latte' },
+    recipe: { fa: 'اسپرسو، شیر گرم و لایه نازکی از فوم.', en: 'Espresso, steamed milk, and a thin layer of foam.', ar: 'اسبريسو، حليب مبخر وطبقة رقيقة من الرغوة.', tr: 'Espresso, buharda pişmiş süt ve ince köpük.' } },
+  { id: 6, catKey: 'hotDrinks', icon: Coffee, price: '220,000', img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'کاپوچینو', en: 'Cappuccino', ar: 'كابتشينو', tr: 'Cappuccino' },
+    recipe: { fa: 'نسبت مساوی از اسپرسو، شیر گرم و فوم.', en: 'Equal parts espresso, steamed milk, and milk foam.', ar: 'أجزاء متساوية من الاسبريسو والحليب والرغوة.', tr: 'Eşit oranda espresso, sıcak süt ve süt köpüğü.' } },
+  { id: 7, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1484244619813-7dd17c80db6c?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'کارامل ماکیاتو', en: 'Caramel Macchiato', ar: 'مكياتو الكراميل', tr: 'Karamel Macchiato' },
+    recipe: { fa: 'شیر بخار داده شده، اسپرسو و سس کارامل.', en: 'Steamed milk, espresso, and caramel sauce.', ar: 'حليب مبخر، اسبريسو وصلصة الكراميل.', tr: 'Buharda pişmiş süt, espresso ve karamel sos.' } },
+  { id: 8, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'موکا', en: 'Cafe Mocha', ar: 'موكا', tr: 'Cafe Mocha' },
+    recipe: { fa: 'ترکیب دلپذیر اسپرسو، شکلات تلخ و شیر.', en: 'Delicious blend of espresso, dark chocolate, and milk.', ar: 'مزيج لذيذ من الاسبريسو، الشوكولاتة الداكنة والحليب.', tr: 'Espresso, bitter çikolata ve sütün leziz karışımı.' } },
+  { id: 9, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'سینامون لاته', en: 'Cinnamon Latte', ar: 'لاتيه القرفة', tr: 'Tarçınlı Latte' },
+    recipe: { fa: 'لاته کلاسیک به همراه پودر و سیروپ دارچین.', en: 'Classic latte with cinnamon powder and syrup.', ar: 'لاتيه كلاسيكي مع مسحوق وشراب القرفة.', tr: 'Tarçın tozu ve şuruplu klasik latte.' } },
+  { id: 10, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'وانیلا لاته', en: 'Vanilla Latte', ar: 'لاتيه الفانيليا', tr: 'Vanilyalı Latte' },
+    recipe: { fa: 'لاته کلاسیک با سیروپ وانیل فرانسوی.', en: 'Classic latte with French vanilla syrup.', ar: 'لاتيه كلاسيكي مع شراب الفانيليا الفرنسية.', tr: 'Fransız vanilya şuruplu klasik latte.' } },
+  { id: 11, catKey: 'hotDrinks', icon: Flame, price: '185,000', img: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'هات چاکلت', en: 'Hot Chocolate', ar: 'شوكولاتة ساخنة', tr: 'Sıcak Çikolata' },
+    recipe: { fa: 'شکلات غلیظ و گرم.', en: 'Thick and warm hot chocolate.', ar: 'شوكولاتة ساخنة وكثيفة.', tr: 'Koyu ve sıcak çikolata.' } },
+  { id: 12, catKey: 'hotDrinks', icon: Flame, price: '185,000', img: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'وایت چاکلت', en: 'White Chocolate', ar: 'شوكولاتة بيضاء', tr: 'Beyaz Çikolata' },
+    recipe: { fa: 'نوشیدنی گرم با پایه شکلات سفید.', en: 'Warm drink based on white chocolate.', ar: 'مشروب دافئ يعتمد على الشوكولاتة البيضاء.', tr: 'Beyaz çikolata bazlı sıcak içecek.' } },
   
-  <!-- React & ReactDOM -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  // HERBAL TEAS
+  { id: 13, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'دمنوش آرامش', en: 'Relaxing Herbal Tea', ar: 'شاي أعشاب للاسترخاء', tr: 'Rahatlatıcı Bitki Çayı' },
+    recipe: { fa: 'ترکیب گیاهان آرام‌بخش مانند گل گاوزبان و سنبل‌الطیب.', en: 'Blend of relaxing herbs like borage and valerian.', ar: 'مزيج من الأعشاب المهدئة.', tr: 'Hodan ve kedi otu gibi rahatlatıcı bitki karışımı.' } },
+  { id: 14, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1576092762791-dd9e2220afa1?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'دمنوش میوه ای', en: 'Fruit Herbal Tea', ar: 'شاي فواكه', tr: 'Meyve Çayı' },
+    recipe: { fa: 'تکه‌های میوه خشک دم‌کرده سرشار از ویتامین.', en: 'Brewed dried fruit pieces full of vitamins.', ar: 'قطع فواكه مجففة مخمرة غنية بالفيتامينات.', tr: 'Vitamin dolu demlenmiş kuru meyve parçaları.' } },
+  { id: 15, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1596631899120-7f2ea9d3c5b5?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'چای ترش', en: 'Hibiscus Tea', ar: 'شاي الكركديه', tr: 'Hibiskus Çayı' },
+    recipe: { fa: 'چای قرمز ترش‌مزه، سرشار از آنتی‌اکسیدان.', en: 'Sour red tea, rich in antioxidants.', ar: 'شاي أحمر حامض، غني بمضادات الأكسدة.', tr: 'Antioksidan açısından zengin ekşi kırmızı çay.' } },
+  { id: 16, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1582793988951-9aed5509eb97?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'دمنوش چای سیاه و هلو', en: 'Black Tea & Peach', ar: 'شاي أسود وخوخ', tr: 'Şeftalili Siyah Çay' },
+    recipe: { fa: 'چای سیاه اصیل دم‌کرده با عطر و طعم هلو.', en: 'Authentic black tea brewed with peach flavor.', ar: 'شاي أسود أصيل مخمر بنكهة الخوخ.', tr: 'Şeftali aromasıyla demlenmiş hakiki siyah çay.' } },
+  { id: 17, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1629851608930-b49918fb1ce2?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'دمنوش دارچین', en: 'Cinnamon Tea', ar: 'شاي القرفة', tr: 'Tarçın Çayı' },
+    recipe: { fa: 'چوب دارچین دم‌کرده، گرم و انرژی‌بخش.', en: 'Brewed cinnamon sticks, warm and energizing.', ar: 'أعواد قرفة مخمرة، دافئة ومنشطة.', tr: 'Demlenmiş tarçın çubukları, sıcak ve enerji verici.' } },
+
+  // COLD DRINKS
+  { id: 20, catKey: 'coldDrinks', icon: Wind, price: '245,000', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'آیس لاته', en: 'Iced Latte', ar: 'آيس لاتيه', tr: 'Buzlu Latte' },
+    recipe: { fa: 'اسپرسو، شیر سرد و یخ.', en: 'Espresso, cold milk, and ice.', ar: 'اسبريسو، حليب بارد وثلج.', tr: 'Espresso, soğuk süt ve buz.' } },
+  { id: 21, catKey: 'coldDrinks', icon: Wind, price: '260,000', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'تمامی قهوه‌ها (آیس)', en: 'All Coffees (Iced)', ar: 'جميع القهاوي (آيس)', tr: 'Tüm Kahveler (Buzlu)' },
+    recipe: { fa: 'سرو تمامی آیتم‌های گرم به صورت سرد و یخی.', en: 'Any hot coffee served iced.', ar: 'أي قهوة ساخنة تقدم مثلجة.', tr: 'Buzlu servis edilen tüm sıcak kahveler.' } },
+  { id: 22, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شیک قهوه', en: 'Coffee Shake', ar: 'مخفوق القهوة', tr: 'Kahveli Shake' },
+    recipe: { fa: 'بستنی وانیل، شات اسپرسو و شیر.', en: 'Vanilla ice cream, espresso shot, and milk.', ar: 'آيس كريم فانيليا، جرعة اسبريسو وحليب.', tr: 'Vanilyalı dondurma, espresso shot ve süt.' } },
+  { id: 23, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1553177595-4de6bb080e19?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شیک شکلات', en: 'Chocolate Shake', ar: 'مخفوق الشوكولاتة', tr: 'Çikolatalı Shake' },
+    recipe: { fa: 'بستنی شکلاتی، شیر و تکه‌های شکلات.', en: 'Chocolate ice cream, milk, and chocolate chunks.', ar: 'آيس كريم شوكولاتة، حليب وقطع شوكولاتة.', tr: 'Çikolatalı dondurma, süt ve çikolata parçaları.' } },
+  { id: 24, catKey: 'coldDrinks', icon: IceCream, price: '300,000', img: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شیک پسته', en: 'Pistachio Shake', ar: 'مخفوق الفستق', tr: 'Fıstıklı Shake' },
+    recipe: { fa: 'بستنی، شیر و پسته خالص آسیاب شده.', en: 'Ice cream, milk, and pure ground pistachios.', ar: 'آيس كريم، حليب وفستق مطحون نقي.', tr: 'Dondurma, süt ve saf öğütülmüş fıstık.' } },
+  { id: 25, catKey: 'coldDrinks', icon: IceCream, price: '250,000', img: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شیک توت فرنگی', en: 'Strawberry Shake', ar: 'مخفوق الفراولة', tr: 'Çilekli Shake' },
+    recipe: { fa: 'شیک میوه‌ای با توت‌فرنگی تازه و بستنی.', en: 'Fruity shake with fresh strawberries and ice cream.', ar: 'مخفوق فواكه مع فراولة طازجة وآيس كريم.', tr: 'Taze çilek ve dondurmalı meyveli shake.' } },
+  { id: 26, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1558770147-d2c31e9a2656?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شیک بادوم زمینی', en: 'Peanut Shake', ar: 'مخفوق الفول السوداني', tr: 'Fıstık Ezmeli Shake' },
+    recipe: { fa: 'کره بادام زمینی، بستنی وانیل و شیر.', en: 'Peanut butter, vanilla ice cream, and milk.', ar: 'زبدة الفول السوداني، آيس كريم فانيليا وحليب.', tr: 'Fıstık ezmesi, vanilyalı dondurma ve süt.' } },
+  { id: 27, catKey: 'coldDrinks', icon: CupSoda, price: '180,000', img: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'موهیتو', en: 'Mojito', ar: 'موهيتو', tr: 'Mojito' },
+    recipe: { fa: 'لیمو ترش تازه، نعناع، سودا و یخ.', en: 'Fresh lime, mint, soda, and ice.', ar: 'ليمون طازج، نعناع، صودا وثلج.', tr: 'Taze misket limonu, nane, soda ve buz.' } },
+  { id: 28, catKey: 'coldDrinks', icon: CupSoda, price: '170,000', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'خیار سکنجبین', en: 'Cucumber Sekanjabin', ar: 'خيار سكنجبين', tr: 'Salatalık Sekanjabin' },
+    recipe: { fa: 'نوشیدنی سنتی با خیار رنده شده و شربت سکنجبین.', en: 'Traditional drink with grated cucumber and Sekanjabin syrup.', ar: 'مشروب تقليدي مع خيار مبشور وشراب السكنجبين.', tr: 'Rendelenmiş salatalık ve Sekanjabin şuruplu geleneksel içecek.' } },
+  { id: 29, catKey: 'coldDrinks', icon: CupSoda, price: '165,000', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'شربت خاکشیر', en: 'Khakshir Syrup', ar: 'شراب خاكشير', tr: 'Khakshir Şurubu' },
+    recipe: { fa: 'خاکشیر شسته شده با گلاب، زعفران و یخ.', en: 'Khakshir seeds with rose water, saffron, and ice.', ar: 'بذور خاكشير مع ماء الورد والزعفران والثلج.', tr: 'Gül suyu, safran ve buzlu Khakshir tohumları.' } },
+  { id: 30, catKey: 'coldDrinks', icon: CupSoda, price: '190,000', img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'بهارنارنج زعفران', en: 'Saffron Orange Blossom', ar: 'زعفران وبراعم البرتقال', tr: 'Safranlı Portakal Çiçeği' },
+    recipe: { fa: 'عرق بهارنارنج خالص، زعفران دم‌کرده و یخ.', en: 'Pure orange blossom extract, brewed saffron, and ice.', ar: 'مستخلص براعم البرتقال النقي، زعفران مخمر وثلج.', tr: 'Saf portakal çiçeği özü, demlenmiş safran ve buz.' } },
+
+  // PASTRY & BAKERY
+  { id: 31, catKey: 'pastry', icon: Croissant, price: '85,000', img: 'https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'کراسان کره ای', en: 'Butter Croissant', ar: 'كرواسون بالزبدة', tr: 'Tereyağlı Kruvasan' },
+    recipe: { fa: 'نان کراسان تازه با کره حیوانی پخت روز.', en: 'Fresh croissant with real butter, baked daily.', ar: 'خبز كرواسون طازج بالزبدة الطبيعية.', tr: 'Günlük pişmiş hakiki tereyağlı taze kruvasan.' } },
+  { id: 32, catKey: 'pastry', icon: Utensils, price: '160,000', img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'چیزکیک سن سباستین', en: 'San Sebastian Cheesecake', ar: 'تشيز كيك سان سباستيان', tr: 'San Sebastian Cheesecake' },
+    recipe: { fa: 'چیزکیک برشته شده با بافت کرمی.', en: 'Burnt cheesecake with a creamy texture.', ar: 'تشيز كيك محمص بقوام كريمي.', tr: 'Kremamsı dokuya sahip yanık cheesecake.' } },
+  { id: 33, catKey: 'pastry', icon: Utensils, price: '65,000', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'نان چاپاتا', en: 'Ciabatta Bread', ar: 'خبز الشيباتا', tr: 'Ciabatta Ekmeği' },
+    recipe: { fa: 'نان ایتالیایی با بافت متخلخل و پوسته ترد.', en: 'Italian bread with a porous texture and crispy crust.', ar: 'خبز إيطالي ذو قوام مسامي وقشرة مقرمشة.', tr: 'Gözenekli dokuya ve çıtır kabuğa sahip İtalyan ekmeği.' } },
+  { id: 34, catKey: 'pastry', icon: Utensils, price: '95,000', img: 'https://images.unsplash.com/photo-1603532648955-039310d9ed75?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'رولت شکلاتی', en: 'Chocolate Swiss Roll', ar: 'سويسرول شوكولاتة', tr: 'Çikolatalı Rulo Pasta' },
+    recipe: { fa: 'کیک اسفنجی کاکائویی با خامه شکلاتی تازه.', en: 'Cocoa sponge cake with fresh chocolate cream.', ar: 'كيك إسفنجي بالكاكاو مع كريمة الشوكولاتة الطازجة.', tr: 'Taze çikolata kremalı kakaolu pandispanya.' } },
+  { id: 35, catKey: 'pastry', icon: Utensils, price: '90,000', img: 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'رولت وانیلی', en: 'Vanilla Swiss Roll', ar: 'سويسرول فانيليا', tr: 'Vanilyalı Rulo Pasta' },
+    recipe: { fa: 'کیک اسفنجی وانیلی با خامه سبک و تکه‌های میوه.', en: 'Vanilla sponge cake with light cream and fruit pieces.', ar: 'كيك إسفنجي بالفانيليا مع كريمة خفيفة وقطع فواكه.', tr: 'Hafif krema ve meyve parçacıklı vanilyalı pandispanya.' } },
+  { id: 36, catKey: 'pastry', icon: Utensils, price: '100,000', img: 'https://images.unsplash.com/photo-1571115177098-24edf778c1b3?auto=format&fit=crop&w=200&q=80',
+    name: { fa: 'رولت کارامل نسکافه', en: 'Caramel Coffee Roll', ar: 'سويسرول كراميل وقهوة', tr: 'Karamelli Kahveli Rulo' },
+    recipe: { fa: 'کیک اسفنجی قهوه با کرم کارامل و گردو.', en: 'Coffee sponge cake with caramel cream and walnuts.', ar: 'كيك إسفنجي بالقهوة مع كريمة الكراميل والجوز.', tr: 'Karamel kreması ve cevizli kahveli pandispanya.' } },
+];
+
+const categories = ['hotDrinks', 'herbalTeas', 'coldDrinks', 'pastry'];
+
+// Smart Fallback Image Component
+const FallbackImage = ({ src, alt, icon: FallbackIcon, isLarge }) => {
+  const [hasError, setHasError] = useState(false);
   
-  <!-- Babel for parsing JSX in the browser -->
-  <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  if (hasError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-[#E0E5EC]">
+        <FallbackIcon size={isLarge ? 40 : 20} className="text-[#A0AEC0]" strokeWidth={1} />
+      </div>
+    );
+  }
 
-  <style>
-    @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&display=swap');
-    
-    body {
-      background-color: #E0E5EC;
-      font-family: 'Vazir', 'Montserrat', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      margin: 0;
-      padding: 0;
-    }
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      onError={() => setHasError(true)}
+      className="w-full h-full object-cover mix-blend-multiply transition-all duration-500 ease-in-out"
+      style={!isLarge ? { filter: 'grayscale(60%) contrast(1.1) opacity(0.8)' } : { filter: 'contrast(1.05)' }}
+    />
+  );
+};
 
-    .font-eng { font-family: 'Montserrat', sans-serif; }
+export default function App() {
+  const [lang, setLang] = useState('fa'); 
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashPhase, setSplashPhase] = useState(0); 
+  const [activeCategoryKey, setActiveCategoryKey] = useState('hotDrinks');
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [likedItems, setLikedItems] = useState({});
 
-    /* NEUMORPHISM CLASSES */
-    .neu-flat {
-      background: #E0E5EC;
-      box-shadow: 8px 8px 14px rgb(163,177,198,0.6), -8px -8px 14px rgba(255,255,255, 0.6);
-      transition: all 0.3s ease;
-    }
-    .neu-flat:active {
-      box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.6), inset -4px -4px 8px rgba(255,255,255, 0.8);
-    }
-    .neu-pressed {
-      background: #E0E5EC;
-      box-shadow: inset 5px 5px 10px 0 rgba(163,177,198, 0.7), inset -5px -5px 10px 0 rgba(255,255,255, 0.8);
-      transition: all 0.3s ease;
-    }
-    .neu-modal-bg {
-      background: rgba(224, 229, 236, 0.8);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
+  const tr = (key) => t[key]?.[lang] || '';
 
-    /* SCROLLBAR HIDING */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  // Splash Screen Logic (7.5s)
+  useEffect(() => {
+    if (showSplash) {
+      const t1 = setTimeout(() => setSplashPhase(1), 500);
+      const t2 = setTimeout(() => setSplashPhase(2), 1500);
+      const t3 = setTimeout(() => setSplashPhase(3), 2500);
+      const t4 = setTimeout(() => setSplashPhase(4), 3000);
+      const t5 = setTimeout(() => setSplashPhase(5), 4500);
+      const t6 = setTimeout(() => setSplashPhase(6), 6500);
+      const t7 = setTimeout(() => setShowSplash(false), 7500); 
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); clearTimeout(t7); };
+    }
+  }, [showSplash]);
 
-    /* ANIMATIONS */
-    @keyframes beanDropSmall {
-      0% { transform: translateY(-80px) scale(0.2); opacity: 0; }
-      60% { transform: translateY(5px) scale(0.9); opacity: 1; }
-      100% { transform: translateY(0) scale(0.8); opacity: 1; }
-    }
-    @keyframes subtleGrind {
-      0%, 100% { transform: scale(0.8) rotate(0deg); }
-      15%, 45%, 75% { transform: scale(0.8) translateX(-2px) rotate(-6deg); }
-      30%, 60%, 90% { transform: scale(0.8) translateX(2px) rotate(6deg); }
-    }
-    @keyframes fadeOutFast {
-      0% { opacity: 1; transform: scale(0.8); }
-      100% { opacity: 0; transform: scale(0.5); }
-    }
-    @keyframes minimalReveal {
-      0% { opacity: 0; transform: translateY(10px) scale(0.95); filter: blur(3px); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-    @keyframes letterReveal {
-      0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
-      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-    }
-    @keyframes subtitleReveal {
-      0% { opacity: 0; transform: translateY(8px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes splashMasterFade {
-      0% { opacity: 1; backdrop-filter: blur(0px); }
-      100% { opacity: 0; backdrop-filter: blur(8px); visibility: hidden; }
-    }
-    @keyframes menuItemEntry {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes splashProgress {
-      0% { width: 0%; opacity: 0; }
-      10% { opacity: 1; }
-      90% { width: 100%; opacity: 1; }
-      100% { width: 100%; opacity: 0; }
-    }
+  useEffect(() => {
+    if (selectedItem || showSplash) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+    return () => document.body.style.overflow = 'unset';
+  }, [selectedItem, showSplash]);
 
-    .animate-bean-drop { animation: beanDropSmall 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-    .animate-bean-shake { animation: subtleGrind 1s ease-in-out forwards; }
-    .animate-fade-fast { animation: fadeOutFast 0.5s ease-out forwards; }
-    .animate-minimal-in { animation: minimalReveal 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards; }
-    
-    .coffee-bean-brown-small {
-      width: 30px; 
-      height: 45px; 
-      background: #7B3F00;
-      border-radius: 50%;
-      position: relative;
-      box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), 4px 4px 10px rgba(163,177,198,0.5);
-    }
-    .coffee-bean-brown-small::after {
-      content: '';
-      position: absolute;
-      top: 5%;
-      left: 45%;
-      width: 10%;
-      height: 90%;
-      background: rgba(0,0,0,0.4);
-      border-radius: 50%;
-      transform: rotate(12deg);
-    }
-    .darbari-tracking { letter-spacing: 0.4em; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
+  const filteredMenu = menuData.filter(item => item.catKey === activeCategoryKey);
+  const toggleLike = (id) => setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
 
-  <!-- APPLICATION CODE (BABEL) -->
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+  // Helper variable to determine reading direction
+  const isRtlLang = ['fa', 'ar'].includes(lang);
+  const textDir = isRtlLang ? 'rtl' : 'ltr';
 
-    // --- ICONS (SVG Functional Components to run without bundlers) ---
-    const Coffee = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-    );
-    const Flame = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-    );
-    const Leaf = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 22l10-10"/></svg>
-    );
-    const Wind = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12.8 19.6A2 2 0 1 0 14 16H2"/><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"/><path d="M9.8 4.4A2 2 0 1 1 11 8H2"/></svg>
-    );
-    const IceCream = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11"/><path d="M17 7A5 5 0 0 0 7 7"/><path d="M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4"/></svg>
-    );
-    const CupSoda = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 8 1.75 12.28A2 2 0 0 0 9.73 22h4.54a2 2 0 0 0 1.98-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15h10"/><path d="m12 8-1.5-6H8"/></svg>
-    );
-    const Croissant = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m4.6 13.4-.52 2.8c-.1.54.4 1.01.94.85l2.7-.8"/><path d="m19.4 13.4.52 2.8c.1.54-.4 1.01-.94.85l-2.7-.8"/><path d="M9.5 21a24.1 24.1 0 0 0 5 0"/><path d="M3.7 10.3c1.7-5.5 8-8.2 13.7-5.4"/><path d="M2.5 16.5c-2.4-.7-2.9-4-1.2-5.7.8-.8 2-.9 2.8-.2l2.3 2"/><path d="M21.5 16.5c2.4-.7 2.9-4 1.2-5.7-.8-.8-2-.9-2.8-.2l-2.3 2"/><path d="M14.5 21.5c-1.6 1-3.4 1-5 0l-1.5-4.5 4-2 4 2-1.5 4.5Z"/></svg>
-    );
-    const Utensils = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-    );
-    const Droplet = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
-    );
-    const Info = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-    );
-    const X = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    );
-    const Heart = ({ size = 24, strokeWidth = 2, className = "", fill = "none" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-    );
-    const Phone = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-    );
-    const Instagram = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-    );
-    const ShoppingBag = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-    );
-    const MapPin = ({ size = 24, strokeWidth = 2, className = "" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-    );
-
-    // --- TRANSLATIONS DICTIONARY ---
-    const t = {
-      cafeName: { fa: 'کافه نان درباری', en: 'Darbari Cafe & Bakery', ar: 'مقهى ومخبز درباري', tr: 'Darbari Kafe & Fırın' },
-      subtitle: { fa: 'DARBARI CAFE & BAKERY', en: 'PREMIUM CAFE & BAKERY', ar: 'مقهى ومخبز فاخر', tr: 'PREMIUM KAFE & FIRIN' },
-      hotDrinks: { fa: 'نوشیدنی گرم', en: 'Hot Drinks', ar: 'مشروبات ساخنة', tr: 'Sıcak İçecekler' },
-      herbalTeas: { fa: 'دمنوش‌ها', en: 'Herbal Teas', ar: 'شاي أعشاب', tr: 'Bitki Çayları' },
-      coldDrinks: { fa: 'نوشیدنی سرد', en: 'Cold Drinks', ar: 'مشروبات باردة', tr: 'Soğuk İçecekler' },
-      pastry: { fa: 'نان و شیرینی', en: 'Pastry & Bakery', ar: 'مخبوزات وحلويات', tr: 'Fırın & Tatlı' },
-      viewRecipe: { fa: 'مشاهده رسپی', en: 'View Recipe', ar: 'عرض الوصفة', tr: 'Tarifi Gör' },
-      recipeDetails: { fa: 'ترکیبات و رسپی', en: 'Ingredients & Recipe', ar: 'المكونات والوصفة', tr: 'İçindekiler ve Tarif' },
-      currency: { fa: 'تومان', en: 'Toman', ar: 'تومان', tr: 'Toman' },
-      price: { fa: 'قیمت:', en: 'Price:', ar: 'السعر:', tr: 'Fiyat:' },
-      contact: { fa: 'راه‌های ارتباطی', en: 'Contact Us', ar: 'تواصل معنا', tr: 'İletişim' },
-      address: { 
-        fa: 'شهرک راه آهن، میدان اتریش\nکافه نان درباری', 
-        en: 'Otrish Sq, Rah Ahan Town\nDarbari Cafe & Bakery', 
-        ar: 'ميدان وتريش، مدينة راه آهن\nمقهى ومخبز درباري', 
-        tr: 'Otrish Meydanı, Rah Ahan\nDarbari Kafe & Fırın' 
-      },
-      snappfood: { fa: 'اسنپ‌فود', en: 'Delivery', ar: 'توصيل', tr: 'Sipariş' },
-    };
-
-    // --- COMPLETE MENU DATA (36 Items) ---
-    const menuData = [
-      // HOT DRINKS (Teas first, then Coffees)
-      { id: 19, catKey: 'hotDrinks', icon: Flame, price: '100,000', img: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'چای سیاه', en: 'Black Tea', ar: 'شاي أسود', tr: 'Siyah Çay' },
-        recipe: { fa: 'چای سیاه دمی لاهیجان تازه دم.', en: 'Freshly brewed traditional black tea.', ar: 'شاي أسود تقليدي مخمر طازجاً.', tr: 'Taze demlenmiş geleneksel siyah çay.' } },
-      { id: 18, catKey: 'hotDrinks', icon: Flame, price: '190,000', img: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'چای‌سبز گل یاس', en: 'Jasmine Green Tea', ar: 'شاي أخضر بالياسمين', tr: 'Yaseminli Yeşil Çay' },
-        recipe: { fa: 'چای سبز خالص همراه با شکوفه‌های معطر یاس.', en: 'Pure green tea with fragrant jasmine blossoms.', ar: 'شاي أخضر نقي مع أزهار الياسمين العطرة.', tr: 'Kokulu yasemin çiçekleriyle saf yeşil çay.' } },
-      { id: 1, catKey: 'hotDrinks', icon: Coffee, price: '200,000', img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'اسپرسو ۱۰۰ عربیکا', en: 'Espresso 100% Arabica', ar: 'اسبريسو ١٠٠٪ أرابيكا', tr: '%100 Arabica Espresso' },
-        recipe: { fa: 'عصاره‌گیری استاندارد از دانه‌های ۱۰۰٪ عربیکا.', en: 'Standard extraction of 100% Arabica beans.', ar: 'استخلاص قياسي لحبوب أرابيكا ١٠٠٪.', tr: '%100 Arabica çekirdeklerinden ekstraksiyon.' } },
-      { id: 2, catKey: 'hotDrinks', icon: Coffee, price: '170,000', img: 'https://images.unsplash.com/photo-1579992357154-faf4bde95b3d?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'اسپرسو ۸۰/۲۰ روبوستا', en: 'Espresso 80/20 Robusta', ar: 'اسبريسو ٨٠/٢٠ روبوستا', tr: 'Espresso 80/20 Robusta' },
-        recipe: { fa: 'ترکیب ۸۰٪ عربیکا و ۲۰٪ روبوستا.', en: 'Blend of 80% Arabica and 20% Robusta.', ar: 'مزيج ٨٠٪ أرابيكا و ٢٠٪ روبوستا.', tr: '%80 Arabica ve %20 Robusta karışımı.' } },
-      { id: 3, catKey: 'hotDrinks', icon: Coffee, price: '185,000', img: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'اسپرسو ماکیاتو', en: 'Espresso Macchiato', ar: 'اسبريسو مكياتو', tr: 'Espresso Macchiato' },
-        recipe: { fa: 'یک شات اسپرسو به همراه مقدار کمی فوم شیر.', en: 'Espresso shot with a small amount of milk foam.', ar: 'جرعة اسبريسو مع رغوة حليب خفيفة.', tr: 'Az miktarda süt köpüklü espresso.' } },
-      { id: 4, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1557006021-b85faa2bc5e2?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'هیزل نات ماکیاتو', en: 'Hazelnut Macchiato', ar: 'مكياتو البندق', tr: 'Fındıklı Macchiato' },
-        recipe: { fa: 'ترکیب اسپرسو، فوم شیر و سیروپ فندق.', en: 'Espresso, milk foam, and hazelnut syrup.', ar: 'اسبريسو، رغوة حليب وشراب البندق.', tr: 'Espresso, süt köpüğü ve fındık şurubu.' } },
-      { id: 5, catKey: 'hotDrinks', icon: Coffee, price: '230,000', img: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'لاته', en: 'Cafe Latte', ar: 'كافيه لاتيه', tr: 'Caffe Latte' },
-        recipe: { fa: 'اسپرسو، شیر گرم و لایه نازکی از فوم.', en: 'Espresso, steamed milk, and a thin layer of foam.', ar: 'اسبريسو، حليب مبخر وطبقة رقيقة من الرغوة.', tr: 'Espresso, buharda pişmiş süt ve ince köpük.' } },
-      { id: 6, catKey: 'hotDrinks', icon: Coffee, price: '220,000', img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'کاپوچینو', en: 'Cappuccino', ar: 'كابتشينو', tr: 'Cappuccino' },
-        recipe: { fa: 'نسبت مساوی از اسپرسو، شیر گرم و فوم.', en: 'Equal parts espresso, steamed milk, and milk foam.', ar: 'أجزاء متساوية من الاسبريسو والحليب والرغوة.', tr: 'Eşit oranda espresso, sıcak süt ve süt köpüğü.' } },
-      { id: 7, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1484244619813-7dd17c80db6c?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'کارامل ماکیاتو', en: 'Caramel Macchiato', ar: 'مكياتو الكراميل', tr: 'Karamel Macchiato' },
-        recipe: { fa: 'شیر بخار داده شده، اسپرسو و سس کارامل.', en: 'Steamed milk, espresso, and caramel sauce.', ar: 'حليب مبخر، اسبريسو وصلصة الكراميل.', tr: 'Buharda pişmiş süt, espresso ve karamel sos.' } },
-      { id: 8, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'موکا', en: 'Cafe Mocha', ar: 'موكا', tr: 'Cafe Mocha' },
-        recipe: { fa: 'ترکیب دلپذیر اسپرسو، شکلات تلخ و شیر.', en: 'Delicious blend of espresso, dark chocolate, and milk.', ar: 'مزيج لذيذ من الاسبريسو، الشوكولاتة الداكنة والحليب.', tr: 'Espresso, bitter çikolata ve sütün leziz karışımı.' } },
-      { id: 9, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'سینامون لاته', en: 'Cinnamon Latte', ar: 'لاتيه القرفة', tr: 'Tarçınlı Latte' },
-        recipe: { fa: 'لاته کلاسیک به همراه پودر و سیروپ دارچین.', en: 'Classic latte with cinnamon powder and syrup.', ar: 'لاتيه كلاسيكي مع مسحوق وشراب القرفة.', tr: 'Tarçın tozu ve şuruplu klasik latte.' } },
-      { id: 10, catKey: 'hotDrinks', icon: Coffee, price: '245,000', img: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'وانیلا لاته', en: 'Vanilla Latte', ar: 'لاتيه الفانيليا', tr: 'Vanilyalı Latte' },
-        recipe: { fa: 'لاته کلاسیک با سیروپ وانیل فرانسوی.', en: 'Classic latte with French vanilla syrup.', ar: 'لاتيه كلاسيكي مع شراب الفانيليا الفرنسية.', tr: 'Fransız vanilya şuruplu klasik latte.' } },
-      { id: 11, catKey: 'hotDrinks', icon: Flame, price: '185,000', img: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'هات چاکلت', en: 'Hot Chocolate', ar: 'شوكولاتة ساخنة', tr: 'Sıcak Çikolata' },
-        recipe: { fa: 'شکلات غلیظ و گرم.', en: 'Thick and warm hot chocolate.', ar: 'شوكولاتة ساخنة وكثيفة.', tr: 'Koyu ve sıcak çikolata.' } },
-      { id: 12, catKey: 'hotDrinks', icon: Flame, price: '185,000', img: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'وایت چاکلت', en: 'White Chocolate', ar: 'شوكولاتة بيضاء', tr: 'Beyaz Çikolata' },
-        recipe: { fa: 'نوشیدنی گرم با پایه شکلات سفید.', en: 'Warm drink based on white chocolate.', ar: 'مشروب دافئ يعتمد على الشوكولاتة البيضاء.', tr: 'Beyaz çikolata bazlı sıcak içecek.' } },
+  return (
+    <div dir="rtl" className="min-h-screen font-sans text-[#4A5568] selection:bg-gray-300 relative pb-24 overflow-x-hidden bg-[#E0E5EC]">
       
-      // HERBAL TEAS
-      { id: 13, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'دمنوش آرامش', en: 'Relaxing Herbal Tea', ar: 'شاي أعشاب للاسترخاء', tr: 'Rahatlatıcı Bitki Çayı' },
-        recipe: { fa: 'ترکیب گیاهان آرام‌بخش مانند گل گاوزبان و سنبل‌الطیب.', en: 'Blend of relaxing herbs like borage and valerian.', ar: 'مزيج من الأعشاب المهدئة.', tr: 'Hodan ve kedi otu gibi rahatlatıcı bitki karışımı.' } },
-      { id: 14, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1576092762791-dd9e2220afa1?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'دمنوش میوه ای', en: 'Fruit Herbal Tea', ar: 'شاي فواكه', tr: 'Meyve Çayı' },
-        recipe: { fa: 'تکه‌های میوه خشک دم‌کرده سرشار از ویتامین.', en: 'Brewed dried fruit pieces full of vitamins.', ar: 'قطع فواكه مجففة مخمرة غنية بالفيتامينات.', tr: 'Vitamin dolu demlenmiş kuru meyve parçaları.' } },
-      { id: 15, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1596631899120-7f2ea9d3c5b5?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'چای ترش', en: 'Hibiscus Tea', ar: 'شاي الكركديه', tr: 'Hibiskus Çayı' },
-        recipe: { fa: 'چای قرمز ترش‌مزه، سرشار از آنتی‌اکسیدان.', en: 'Sour red tea, rich in antioxidants.', ar: 'شاي أحمر حامض، غني بمضادات الأكسدة.', tr: 'Antioksidan açısından zengin ekşi kırmızı çay.' } },
-      { id: 16, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1582793988951-9aed5509eb97?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'دمنوش چای سیاه و هلو', en: 'Black Tea & Peach', ar: 'شاي أسود وخوخ', tr: 'Şeftalili Siyah Çay' },
-        recipe: { fa: 'چای سیاه اصیل دم‌کرده با عطر و طعم هلو.', en: 'Authentic black tea brewed with peach flavor.', ar: 'شاي أسود أصيل مخمر بنكهة الخوخ.', tr: 'Şeftali aromasıyla demlenmiş hakiki siyah çay.' } },
-      { id: 17, catKey: 'herbalTeas', icon: Leaf, price: '190,000', img: 'https://images.unsplash.com/photo-1629851608930-b49918fb1ce2?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'دمنوش دارچین', en: 'Cinnamon Tea', ar: 'شاي القرفة', tr: 'Tarçın Çayı' },
-        recipe: { fa: 'چوب دارچین دم‌کرده، گرم و انرژی‌بخش.', en: 'Brewed cinnamon sticks, warm and energizing.', ar: 'أعواد قرفة مخمرة، دافئة ومنشطة.', tr: 'Demlenmiş tarçın çubukları, sıcak ve enerji verici.' } },
-
-      // COLD DRINKS
-      { id: 20, catKey: 'coldDrinks', icon: Wind, price: '245,000', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'آیس لاته', en: 'Iced Latte', ar: 'آيس لاتيه', tr: 'Buzlu Latte' },
-        recipe: { fa: 'اسپرسو، شیر سرد و یخ.', en: 'Espresso, cold milk, and ice.', ar: 'اسبريسو، حليب بارد وثلج.', tr: 'Espresso, soğuk süt ve buz.' } },
-      { id: 21, catKey: 'coldDrinks', icon: Wind, price: '260,000', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'تمامی قهوه‌ها (آیس)', en: 'All Coffees (Iced)', ar: 'جميع القهاوي (آيس)', tr: 'Tüm Kahveler (Buzlu)' },
-        recipe: { fa: 'سرو تمامی آیتم‌های گرم به صورت سرد و یخی.', en: 'Any hot coffee served iced.', ar: 'أي قهوة ساخنة تقدم مثلجة.', tr: 'Buzlu servis edilen tüm sıcak kahveler.' } },
-      { id: 22, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شیک قهوه', en: 'Coffee Shake', ar: 'مخفوق القهوة', tr: 'Kahveli Shake' },
-        recipe: { fa: 'بستنی وانیل، شات اسپرسو و شیر.', en: 'Vanilla ice cream, espresso shot, and milk.', ar: 'آيس كريم فانيليا، جرعة اسبريسو وحليب.', tr: 'Vanilyalı dondurma, espresso shot ve süt.' } },
-      { id: 23, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1553177595-4de6bb080e19?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شیک شکلات', en: 'Chocolate Shake', ar: 'مخفوق الشوكولاتة', tr: 'Çikolatalı Shake' },
-        recipe: { fa: 'بستنی شکلاتی، شیر و تکه‌های شکلات.', en: 'Chocolate ice cream, milk, and chocolate chunks.', ar: 'آيس كريم شوكولاتة، حليب وقطع شوكولاتة.', tr: 'Çikolatalı dondurma, süt ve çikolata parçaları.' } },
-      { id: 24, catKey: 'coldDrinks', icon: IceCream, price: '300,000', img: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شیک پسته', en: 'Pistachio Shake', ar: 'مخفوق الفستق', tr: 'Fıstıklı Shake' },
-        recipe: { fa: 'بستنی، شیر و پسته خالص آسیاب شده.', en: 'Ice cream, milk, and pure ground pistachios.', ar: 'آيس كريم، حليب وفستق مطحون نقي.', tr: 'Dondurma, süt ve saf öğütülmüş fıstık.' } },
-      { id: 25, catKey: 'coldDrinks', icon: IceCream, price: '250,000', img: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شیک توت فرنگی', en: 'Strawberry Shake', ar: 'مخفوق الفراولة', tr: 'Çilekli Shake' },
-        recipe: { fa: 'شیک میوه‌ای با توت‌فرنگی تازه و بستنی.', en: 'Fruity shake with fresh strawberries and ice cream.', ar: 'مخفوق فواكه مع فراولة طازجة وآيس كريم.', tr: 'Taze çilek ve dondurmalı meyveli shake.' } },
-      { id: 26, catKey: 'coldDrinks', icon: IceCream, price: '270,000', img: 'https://images.unsplash.com/photo-1558770147-d2c31e9a2656?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شیک بادوم زمینی', en: 'Peanut Shake', ar: 'مخفوق الفول السوداني', tr: 'Fıstık Ezmeli Shake' },
-        recipe: { fa: 'کره بادام زمینی، بستنی وانیل و شیر.', en: 'Peanut butter, vanilla ice cream, and milk.', ar: 'زبدة الفول السوداني، آيس كريم فانيليا وحليب.', tr: 'Fıstık ezmesi, vanilyalı dondurma ve süt.' } },
-      { id: 27, catKey: 'coldDrinks', icon: CupSoda, price: '180,000', img: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'موهیتو', en: 'Mojito', ar: 'موهيتو', tr: 'Mojito' },
-        recipe: { fa: 'لیمو ترش تازه، نعناع، سودا و یخ.', en: 'Fresh lime, mint, soda, and ice.', ar: 'ليمون طازج، نعناع، صودا وثلج.', tr: 'Taze misket limonu, nane, soda ve buz.' } },
-      { id: 28, catKey: 'coldDrinks', icon: CupSoda, price: '170,000', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'خیار سکنجبین', en: 'Cucumber Sekanjabin', ar: 'خيار سكنجبين', tr: 'Salatalık Sekanjabin' },
-        recipe: { fa: 'نوشیدنی سنتی با خیار رنده شده و شربت سکنجبین.', en: 'Traditional drink with grated cucumber and Sekanjabin syrup.', ar: 'مشروب تقليدي مع خيار مبشور وشراب السكنجبين.', tr: 'Rendelenmiş salatalık ve Sekanjabin şuruplu geleneksel içecek.' } },
-      { id: 29, catKey: 'coldDrinks', icon: CupSoda, price: '165,000', img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'شربت خاکشیر', en: 'Khakshir Syrup', ar: 'شراب خاكشير', tr: 'Khakshir Şurubu' },
-        recipe: { fa: 'خاکشیر شسته شده با گلاب، زعفران و یخ.', en: 'Khakshir seeds with rose water, saffron, and ice.', ar: 'بذور خاكشير مع ماء الورد والزعفران والثلج.', tr: 'Gül suyu, safran ve buzlu Khakshir tohumları.' } },
-      { id: 30, catKey: 'coldDrinks', icon: CupSoda, price: '190,000', img: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'بهارنارنج زعفران', en: 'Saffron Orange Blossom', ar: 'زعفران وبراعم البرتقال', tr: 'Safranlı Portakal Çiçeği' },
-        recipe: { fa: 'عرق بهارنارنج خالص، زعفران دم‌کرده و یخ.', en: 'Pure orange blossom extract, brewed saffron, and ice.', ar: 'مستخلص براعم البرتقال النقي، زعفران مخمر وثلج.', tr: 'Saf portakal çiçeği özü, demlenmiş safran ve buz.' } },
-
-      // PASTRY & BAKERY
-      { id: 31, catKey: 'pastry', icon: Croissant, price: '85,000', img: 'https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'کراسان کره ای', en: 'Butter Croissant', ar: 'كرواسون بالزبدة', tr: 'Tereyağlı Kruvasan' },
-        recipe: { fa: 'نان کراسان تازه با کره حیوانی پخت روز.', en: 'Fresh croissant with real butter, baked daily.', ar: 'خبز كرواسون طازج بالزبدة الطبيعية.', tr: 'Günlük pişmiş hakiki tereyağlı taze kruvasan.' } },
-      { id: 32, catKey: 'pastry', icon: Utensils, price: '160,000', img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'چیزکیک سن سباستین', en: 'San Sebastian Cheesecake', ar: 'تشيز كيك سان سباستيان', tr: 'San Sebastian Cheesecake' },
-        recipe: { fa: 'چیزکیک برشته شده با بافت کرمی.', en: 'Burnt cheesecake with a creamy texture.', ar: 'تشيز كيك محمص بقوام كريمي.', tr: 'Kremamsı dokuya sahip yanık cheesecake.' } },
-      { id: 33, catKey: 'pastry', icon: Utensils, price: '65,000', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'نان چاپاتا', en: 'Ciabatta Bread', ar: 'خبز الشيباتا', tr: 'Ciabatta Ekmeği' },
-        recipe: { fa: 'نان ایتالیایی با بافت متخلخل و پوسته ترد.', en: 'Italian bread with a porous texture and crispy crust.', ar: 'خبز إيطالي ذو قوام مسامي وقشرة مقرمشة.', tr: 'Gözenekli dokuya ve çıtır kabuğa sahip İtalyan ekmeği.' } },
-      { id: 34, catKey: 'pastry', icon: Utensils, price: '95,000', img: 'https://images.unsplash.com/photo-1603532648955-039310d9ed75?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'رولت شکلاتی', en: 'Chocolate Swiss Roll', ar: 'سويسرول شوكولاتة', tr: 'Çikolatalı Rulo Pasta' },
-        recipe: { fa: 'کیک اسفنجی کاکائویی با خامه شکلاتی تازه.', en: 'Cocoa sponge cake with fresh chocolate cream.', ar: 'كيك إسفنجي بالكاكاو مع كريمة الشوكولاتة الطازجة.', tr: 'Taze çikolata kremalı kakaolu pandispanya.' } },
-      { id: 35, catKey: 'pastry', icon: Utensils, price: '90,000', img: 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'رولت وانیلی', en: 'Vanilla Swiss Roll', ar: 'سويسرول فانيليا', tr: 'Vanilyalı Rulo Pasta' },
-        recipe: { fa: 'کیک اسفنجی وانیلی با خامه سبک و تکه‌های میوه.', en: 'Vanilla sponge cake with light cream and fruit pieces.', ar: 'كيك إسفنجي بالفانيليا مع كريمة خفيفة وقطع فواكه.', tr: 'Hafif krema ve meyve parçacıklı vanilyalı pandispanya.' } },
-      { id: 36, catKey: 'pastry', icon: Utensils, price: '100,000', img: 'https://images.unsplash.com/photo-1571115177098-24edf778c1b3?auto=format&fit=crop&w=200&q=80',
-        name: { fa: 'رولت کارامل نسکافه', en: 'Caramel Coffee Roll', ar: 'سويسرول كراميل وقهوة', tr: 'Karamelli Kahveli Rulo' },
-        recipe: { fa: 'کیک اسفنجی قهوه با کرم کارامل و گردو.', en: 'Coffee sponge cake with caramel cream and walnuts.', ar: 'كيك إسفنجي بالقهوة مع كريمة الكراميل والجوز.', tr: 'Karamel kreması ve cevizli kahveli pandispanya.' } },
-    ];
-
-    const categories = ['hotDrinks', 'herbalTeas', 'coldDrinks', 'pastry'];
-
-    // Smart Fallback Image Component
-    const FallbackImage = ({ src, alt, icon: FallbackIcon, isLarge }) => {
-      const [hasError, setHasError] = useState(false);
-      
-      if (hasError) {
-        return (
-          <div className="w-full h-full flex items-center justify-center bg-[#E0E5EC]">
-            <FallbackIcon size={isLarge ? 40 : 20} className="text-[#A0AEC0]" strokeWidth={1} />
-          </div>
-        );
-      }
-
-      return (
-        <img 
-          src={src} 
-          alt={alt} 
-          onError={() => setHasError(true)}
-          className="w-full h-full object-cover transition-all duration-500 ease-in-out"
-          style={!isLarge ? { filter: 'grayscale(60%) contrast(1.1) opacity(0.8)', mixBlendMode: 'multiply' } : { filter: 'contrast(1.05)' }}
-        />
-      );
-    };
-
-    function App() {
-      const [lang, setLang] = useState('fa'); 
-      const [showSplash, setShowSplash] = useState(true);
-      const [splashPhase, setSplashPhase] = useState(0); 
-      const [activeCategoryKey, setActiveCategoryKey] = useState('hotDrinks');
-      const [selectedItem, setSelectedItem] = useState(null);
-      const [likedItems, setLikedItems] = useState({});
-
-      const tr = (key) => t[key]?.[lang] || '';
-
-      // Splash Screen Logic (7.5s)
-      useEffect(() => {
-        if (showSplash) {
-          const t1 = setTimeout(() => setSplashPhase(1), 500);
-          const t2 = setTimeout(() => setSplashPhase(2), 1500);
-          const t3 = setTimeout(() => setSplashPhase(3), 2500);
-          const t4 = setTimeout(() => setSplashPhase(4), 3000);
-          const t5 = setTimeout(() => setSplashPhase(5), 4500);
-          const t6 = setTimeout(() => setSplashPhase(6), 6500);
-          const t7 = setTimeout(() => setShowSplash(false), 7500); 
-          return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); clearTimeout(t7); };
+      {/* CSS STYLES (PURE MINIMALIST WHITE) */}
+      <style>{`
+        @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&display=swap');
+        
+        body {
+          background-color: #E0E5EC;
+          font-family: 'Vazir', 'Montserrat', sans-serif;
+          -webkit-tap-highlight-color: transparent;
         }
-      }, [showSplash]);
 
-      useEffect(() => {
-        if (selectedItem || showSplash) document.body.style.overflow = 'hidden';
-        else document.body.style.overflow = 'unset';
-        return () => document.body.style.overflow = 'unset';
-      }, [selectedItem, showSplash]);
+        .font-eng { font-family: 'Montserrat', sans-serif; }
 
-      const filteredMenu = menuData.filter(item => item.catKey === activeCategoryKey);
-      const toggleLike = (id) => setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
+        .neu-flat {
+          background: #E0E5EC;
+          box-shadow: 8px 8px 14px rgb(163,177,198,0.6), 
+                     -8px -8px 14px rgba(255,255,255, 0.6);
+          transition: all 0.3s ease;
+        }
+        .neu-flat:active {
+          box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.6),
+                      inset -4px -4px 8px rgba(255,255,255, 0.8);
+        }
 
-      const isRtlLang = ['fa', 'ar'].includes(lang);
-      const textDir = isRtlLang ? 'rtl' : 'ltr';
+        .neu-pressed {
+          background: #E0E5EC;
+          box-shadow: inset 5px 5px 10px 0 rgba(163,177,198, 0.7),
+                      inset -5px -5px 10px 0 rgba(255,255,255, 0.8);
+          transition: all 0.3s ease;
+        }
 
-      return (
-        <div dir="rtl" className="min-h-screen text-[#4A5568] selection:bg-gray-300 relative pb-24 overflow-x-hidden bg-[#E0E5EC]">
-          
-          {/* --- SPLASH SCREEN --- */}
-          {showSplash && (
-            <div 
-              className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#E0E5EC]"
-              style={{ animation: splashPhase >= 6 ? 'splashMasterFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none' }}
-            >
-              <div className="relative w-48 h-48 flex items-center justify-center mb-6">
-                {splashPhase >= 1 && splashPhase <= 3 && (
-                  <div className={`absolute ${splashPhase === 3 ? 'animate-fade-fast' : splashPhase === 2 ? 'animate-bean-shake' : 'animate-bean-drop'}`}>
-                    <div className="coffee-bean-brown-small"></div>
-                  </div>
-                )}
-                {splashPhase >= 4 && (
-                  <div className="absolute animate-minimal-in flex items-end gap-5 text-[#4A5568]">
-                    <div className="flex flex-col items-center">
-                      <Coffee size={40} strokeWidth={1} />
-                      <div className="mt-2 w-10 h-[2px] rounded-full neu-pressed opacity-70"></div>
-                    </div>
-                    <div className="flex flex-col items-center pb-0.5">
-                      <Croissant size={32} strokeWidth={1} className="text-[#718096]" />
-                      <div className="mt-1.5 w-8 h-[2px] rounded-full neu-pressed opacity-70"></div>
-                    </div>
-                  </div>
-                )}
+        .neu-modal-bg {
+          background: rgba(224, 229, 236, 0.8);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* HIDE SCROLLBAR BUT ALLOW SCROLLING */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        /* SPLASH SCREEN ANIMATIONS */
+        @keyframes beanDropSmall {
+          0% { transform: translateY(-80px) scale(0.2); opacity: 0; }
+          60% { transform: translateY(5px) scale(0.9); opacity: 1; }
+          100% { transform: translateY(0) scale(0.8); opacity: 1; }
+        }
+        @keyframes subtleGrind {
+          0%, 100% { transform: scale(0.8) rotate(0deg); }
+          15%, 45%, 75% { transform: scale(0.8) translateX(-2px) rotate(-6deg); }
+          30%, 60%, 90% { transform: scale(0.8) translateX(2px) rotate(6deg); }
+        }
+        @keyframes fadeOutFast {
+          0% { opacity: 1; transform: scale(0.8); }
+          100% { opacity: 0; transform: scale(0.5); }
+        }
+        @keyframes minimalReveal {
+          0% { opacity: 0; transform: translateY(10px) scale(0.95); filter: blur(3px); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes letterReveal {
+          0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes subtitleReveal {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes splashMasterFade {
+          0% { opacity: 1; backdrop-filter: blur(0px); }
+          100% { opacity: 0; backdrop-filter: blur(8px); visibility: hidden; }
+        }
+        @keyframes menuItemEntry {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes splashProgress {
+          0% { width: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { width: 100%; opacity: 1; }
+          100% { width: 100%; opacity: 0; }
+        }
+
+        .animate-bean-drop { animation: beanDropSmall 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .animate-bean-shake { animation: subtleGrind 1s ease-in-out forwards; }
+        .animate-fade-fast { animation: fadeOutFast 0.5s ease-out forwards; }
+        .animate-minimal-in { animation: minimalReveal 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards; }
+        
+        .coffee-bean-brown-small {
+          width: 30px; 
+          height: 45px; 
+          background: #7B3F00;
+          border-radius: 50%;
+          position: relative;
+          box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), 4px 4px 10px rgba(163,177,198,0.5);
+        }
+        .coffee-bean-brown-small::after {
+          content: '';
+          position: absolute;
+          top: 5%;
+          left: 45%;
+          width: 10%;
+          height: 90%;
+          background: rgba(0,0,0,0.4);
+          border-radius: 50%;
+          transform: rotate(12deg);
+        }
+      `}</style>
+
+      {/* --- SPLASH SCREEN --- */}
+      {showSplash && (
+        <div 
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#E0E5EC]"
+          style={{ animation: splashPhase >= 6 ? 'splashMasterFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none' }}
+        >
+          <div className="relative w-48 h-48 flex items-center justify-center mb-6">
+            {splashPhase >= 1 && splashPhase <= 3 && (
+              <div className={`absolute ${splashPhase === 3 ? 'animate-fade-fast' : splashPhase === 2 ? 'animate-bean-shake' : 'animate-bean-drop'}`}>
+                <div className="coffee-bean-brown-small"></div>
               </div>
-
-              <div className="h-24 flex flex-col items-center justify-center w-full">
-                {splashPhase >= 5 && (
-                  <React.Fragment>
-                    <h1 dir="ltr" className="font-eng font-light text-2xl text-[#2D3748] uppercase flex justify-center w-full" style={{ letterSpacing: '0.4em', paddingLeft: '0.4em' }}>
-                      {['D','A','R','B','A','R','I'].map((letter, index) => (
-                        <span 
-                          key={index} 
-                          className="inline-block opacity-0"
-                          style={{ animation: `letterReveal 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards`, animationDelay: `${index * 0.08}s` }}
-                        >
-                          {letter}
-                        </span>
-                      ))}
-                    </h1>
-                    <h2 
-                      dir="ltr"
-                      className="font-eng font-medium text-xs sm:text-sm text-[#718096] mt-3 opacity-0 uppercase text-center w-full" 
-                      style={{ animation: 'subtitleReveal 1s ease-out forwards 0.8s', letterSpacing: '0.4em', paddingLeft: '0.4em' }}
-                    >
-                      CAFE & BAKERY
-                    </h2>
-                  </React.Fragment>
-                )}
-              </div>
-
-              <div className="absolute bottom-12 w-32 h-[2px] neu-pressed rounded-full overflow-hidden">
-                 <div className="h-full bg-[#A0AEC0]" style={{ animation: 'splashProgress 7.5s ease-in-out forwards' }}></div>
-              </div>
-            </div>
-          )}
-
-          {/* --- MAIN APP CONTENT --- */}
-          <div 
-            className="transition-all duration-1000 ease-in-out pb-8"
-            style={{ opacity: showSplash ? 0 : 1, filter: showSplash ? 'blur(8px)' : 'blur(0)', pointerEvents: showSplash ? 'none' : 'auto' }}
-          >
-            {/* HEADER */}
-            <header className="pt-8 pb-4 px-5 sticky top-0 z-10 bg-[#E0E5EC]/85 backdrop-blur-xl border-b border-white/40">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex flex-col flex-1" dir={textDir}>
-                  <h1 className={`text-xl font-black text-[#2D3748] tracking-tight ${!isRtlLang ? 'font-eng font-bold' : ''}`}>
-                    {tr('cafeName')}
-                  </h1>
-                  <p className="font-eng text-[9px] text-[#718096] mt-1 font-medium tracking-[0.2em]">{tr('subtitle')}</p>
+            )}
+            {splashPhase >= 4 && (
+              <div className="absolute animate-minimal-in flex items-end gap-5 text-[#4A5568]">
+                <div className="flex flex-col items-center">
+                  <Coffee size={40} strokeWidth={1} />
+                  <div className="mt-2 w-10 h-[2px] rounded-full neu-pressed opacity-70"></div>
                 </div>
-                
-                {/* Language Switcher */}
-                <div className="flex gap-2">
-                  {['fa', 'en', 'ar', 'tr'].map(l => (
-                    <button 
-                      key={l}
-                      onClick={() => setLang(l)}
-                      className={`w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${lang === l ? 'neu-pressed text-[#2B6CB0]' : 'neu-flat text-[#A0AEC0]'}`}
-                    >
-                      {l.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </header>
-
-            {/* HORIZONTAL SCROLLABLE CATEGORIES */}
-            <section className="px-4 py-4 sticky top-[95px] z-10 bg-[#E0E5EC]/95 backdrop-blur-md">
-              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 snap-x">
-                {categories.map((catKey) => {
-                  const isActive = activeCategoryKey === catKey;
-                  return (
-                    <button
-                      key={catKey}
-                      onClick={() => setActiveCategoryKey(catKey)}
-                      className={`snap-center shrink-0 min-w-[105px] flex-1 py-3 px-2 rounded-[1.2rem] text-[11px] sm:text-[13px] font-bold transition-all duration-300 ${
-                        isActive ? 'neu-pressed text-[#2B6CB0]' : 'neu-flat text-[#718096]'
-                      } ${!isRtlLang ? 'font-eng' : ''}`}
-                    >
-                      <div className="flex items-center justify-center gap-1.5" dir={textDir}>
-                        {catKey === 'hotDrinks' && <Flame size={16} className={isActive ? 'animate-pulse' : ''} />}
-                        {catKey === 'herbalTeas' && <Leaf size={16} />}
-                        {catKey === 'coldDrinks' && <Wind size={16} />}
-                        {catKey === 'pastry' && <Croissant size={16} />}
-                        <span className="truncate pt-0.5">{tr(catKey)}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-
-            {/* MENU ITEMS LIST */}
-            <main className="px-5 space-y-4 mt-2">
-              {filteredMenu.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  onClick={() => setSelectedItem(item)}
-                  className="neu-flat rounded-[1.5rem] p-4 flex items-center justify-between cursor-pointer opacity-0 group"
-                  style={{ animation: !showSplash ? `menuItemEntry 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) forwards ${index * 0.05}s` : 'none' }}
-                >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="w-14 h-14 rounded-[1rem] neu-pressed overflow-hidden flex items-center justify-center shrink-0">
-                      <FallbackImage src={item.img} alt={item.name[lang]} icon={item.icon} isLarge={false} />
-                    </div>
-                    
-                    <div className="flex flex-col w-full px-2 items-start" dir={textDir}>
-                      <h3 className={`text-[14px] font-bold text-[#2D3748] truncate w-full group-active:text-[#2B6CB0] transition-colors ${!isRtlLang ? 'font-eng' : ''}`}>
-                        {item.name[lang]}
-                      </h3>
-                      <div className="flex items-center gap-1 mt-1 text-[#2B6CB0] bg-[#E0E5EC] w-max px-2 py-0.5 rounded-md shadow-[inset_1px_1px_2px_rgba(163,177,198,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
-                        <Info size={10} />
-                        <span className={`text-[9px] font-bold text-[#718096] ${!isRtlLang ? 'font-eng' : ''}`}>{tr('viewRecipe')}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col shrink-0 px-1 items-center" dir={textDir}>
-                    <span className="text-[13px] font-black text-[#2D3748] font-eng tracking-tight">{item.price}</span>
-                    <span className={`text-[9px] text-[#A0AEC0] mt-0.5 ${!isRtlLang ? 'font-eng' : ''}`}>{tr('currency')}</span>
-                  </div>
-                </div>
-              ))}
-            </main>
-
-            {/* FOOTER */}
-            <footer className="px-5 mt-14 mb-8 opacity-0" style={{ animation: !showSplash ? `menuItemEntry 0.6s forwards 0.4s` : 'none' }}>
-              <div className="neu-flat rounded-[2rem] p-6">
-                <h2 className={`text-xs font-bold text-[#718096] mb-6 text-center relative ${!isRtlLang ? 'font-eng' : ''}`} dir={textDir}>
-                  <span className="bg-[#E0E5EC] px-3 relative z-10">{tr('contact')}</span>
-                  <div className="absolute top-1/2 left-0 w-full h-[1px] neu-pressed -z-0"></div>
-                </h2>
-                
-                <div className="flex justify-center gap-6">
-                  <a href="tel:09121117177" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#4A5568]">
-                    <Phone size={18} />
-                  </a>
-                  <a href="#" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#E1306C]">
-                    <Instagram size={18} />
-                  </a>
-                  <a href="#" className="relative w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#FF00A6]">
-                    <ShoppingBag size={18} />
-                    <div className={`absolute -bottom-5 text-[8px] font-bold text-[#718096] whitespace-nowrap ${!isRtlLang ? 'font-eng' : ''}`}>{tr('snappfood')}</div>
-                  </a>
-                </div>
-                
-                <div className="mt-10 flex items-start gap-2 justify-center text-center">
-                  <MapPin size={16} className="text-[#A0AEC0] mt-0.5 shrink-0" />
-                  <p className={`text-[11px] text-[#718096] font-medium leading-relaxed whitespace-pre-line ${!isRtlLang ? 'font-eng' : ''}`} dir={textDir}>
-                    {tr('address')}
-                  </p>
+                <div className="flex flex-col items-center pb-0.5">
+                  <Croissant size={32} strokeWidth={1} className="text-[#718096]" />
+                  <div className="mt-1.5 w-8 h-[2px] rounded-full neu-pressed opacity-70"></div>
                 </div>
               </div>
-            </footer>
+            )}
           </div>
 
-          {/* --- RECIPE MODAL --- */}
-          {selectedItem && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center neu-modal-bg p-5 transition-all duration-300">
-              <div 
-                className="w-full max-w-sm bg-[#E0E5EC] rounded-[2rem] p-5 sm:p-6 relative shadow-[15px_15px_40px_rgba(163,177,198,0.5),-15px_-15px_40px_rgba(255,255,255,0.6)]"
-                style={{ animation: 'minimalReveal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-center w-full absolute top-5 px-5 left-0 box-border" dir={textDir}>
-                  <button 
-                    onClick={() => setSelectedItem(null)}
-                    className="w-10 h-10 rounded-full neu-flat flex items-center justify-center text-[#718096]"
-                  >
-                    <X size={18} />
-                  </button>
-                  <button 
-                    onClick={() => toggleLike(selectedItem.id)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${likedItems[selectedItem.id] ? 'neu-pressed text-red-500' : 'neu-flat text-[#718096]'}`}
-                  >
-                    <Heart size={16} fill={likedItems[selectedItem.id] ? "currentColor" : "none"} />
-                  </button>
-                </div>
+          <div className="h-24 flex flex-col items-center justify-center w-full">
+            {splashPhase >= 5 && (
+              <>
+                <h1 dir="ltr" className="font-eng font-light text-2xl text-[#2D3748] uppercase flex justify-center w-full" style={{ letterSpacing: '0.4em', paddingLeft: '0.4em' }}>
+                  {['D','A','R','B','A','R','I'].map((letter, index) => (
+                    <span 
+                      key={index} 
+                      className="inline-block opacity-0"
+                      style={{ animation: `letterReveal 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards`, animationDelay: `${index * 0.08}s` }}
+                    >
+                      {letter}
+                    </span>
+                  ))}
+                </h1>
+                <h2 
+                  dir="ltr"
+                  className="font-eng font-medium text-xs sm:text-sm text-[#718096] mt-3 opacity-0 uppercase text-center w-full" 
+                  style={{ animation: 'subtitleReveal 1s ease-out forwards 0.8s', letterSpacing: '0.4em', paddingLeft: '0.4em' }}
+                >
+                  CAFE & BAKERY
+                </h2>
+              </>
+            )}
+          </div>
 
-                <div className="flex flex-col items-center mt-12 mb-6" dir={textDir}>
-                  <div className="w-24 h-24 rounded-full neu-pressed overflow-hidden flex items-center justify-center mb-4 border-[3px] border-[#E0E5EC]">
-                    <FallbackImage src={selectedItem.img} alt={selectedItem.name[lang]} icon={selectedItem.icon} isLarge={true} />
+          <div className="absolute bottom-12 w-32 h-[2px] neu-pressed rounded-full overflow-hidden">
+             <div className="h-full bg-[#A0AEC0]" style={{ animation: 'splashProgress 7.5s ease-in-out forwards' }}></div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MAIN APP CONTENT --- */}
+      <div 
+        className="transition-all duration-1000 ease-in-out pb-8"
+        style={{ opacity: showSplash ? 0 : 1, filter: showSplash ? 'blur(8px)' : 'blur(0)', pointerEvents: showSplash ? 'none' : 'auto' }}
+      >
+        {/* HEADER */}
+        <header className="pt-8 pb-4 px-5 sticky top-0 z-10 bg-[#E0E5EC]/85 backdrop-blur-xl border-b border-white/40">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col flex-1" dir={textDir}>
+              <h1 className={`text-xl font-black text-[#2D3748] tracking-tight ${!isRtlLang ? 'font-eng font-bold' : ''}`}>
+                {tr('cafeName')}
+              </h1>
+              <p className="font-eng text-[9px] text-[#718096] mt-1 font-medium tracking-[0.2em]">{tr('subtitle')}</p>
+            </div>
+            
+            {/* Language Switcher */}
+            <div className="flex gap-2">
+              {['fa', 'en', 'ar', 'tr'].map(l => (
+                <button 
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`w-7 h-7 rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${lang === l ? 'neu-pressed text-[#2B6CB0]' : 'neu-flat text-[#A0AEC0]'}`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        {/* HORIZONTAL SCROLLABLE CATEGORIES */}
+        <section className="px-4 py-4 sticky top-[95px] z-10 bg-[#E0E5EC]/95 backdrop-blur-md">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 snap-x">
+            {categories.map((catKey) => {
+              const isActive = activeCategoryKey === catKey;
+              return (
+                <button
+                  key={catKey}
+                  onClick={() => setActiveCategoryKey(catKey)}
+                  className={`snap-center shrink-0 min-w-[105px] flex-1 py-3 px-2 rounded-[1.2rem] text-[11px] sm:text-[13px] font-bold transition-all duration-300 ${
+                    isActive ? 'neu-pressed text-[#2B6CB0]' : 'neu-flat text-[#718096]'
+                  } ${!isRtlLang ? 'font-eng' : ''}`}
+                >
+                  <div className="flex items-center justify-center gap-1.5" dir={textDir}>
+                    {catKey === 'hotDrinks' && <Flame size={16} className={isActive ? 'animate-pulse' : ''} />}
+                    {catKey === 'herbalTeas' && <Leaf size={16} />}
+                    {catKey === 'coldDrinks' && <Wind size={16} />}
+                    {catKey === 'pastry' && <Croissant size={16} />}
+                    <span className="truncate pt-0.5">{tr(catKey)}</span>
                   </div>
-                  <h2 className={`text-xl font-black text-[#2D3748] text-center ${!isRtlLang ? 'font-eng' : ''}`}>{selectedItem.name[lang]}</h2>
-                  <span className={`text-[10px] font-bold text-[#A0AEC0] mt-2 bg-[#E0E5EC] px-3 py-1 rounded-full neu-pressed ${!isRtlLang ? 'font-eng' : ''}`}>
-                    {tr(selectedItem.catKey)}
-                  </span>
-                </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-                <div className="neu-pressed rounded-2xl p-5 mb-6" dir={textDir}>
-                  <h3 className={`text-[13px] font-bold text-[#2D3748] mb-2 flex items-center gap-1.5 ${!isRtlLang ? 'font-eng' : ''}`}>
-                    <Droplet size={16} className="text-[#2B6CB0]" />
-                    {tr('recipeDetails')}
+        {/* MENU ITEMS LIST */}
+        <main className="px-5 space-y-4 mt-2">
+          {filteredMenu.map((item, index) => (
+            <div 
+              key={item.id} 
+              onClick={() => setSelectedItem(item)}
+              className="neu-flat rounded-[1.5rem] p-4 flex items-center justify-between cursor-pointer opacity-0 group"
+              style={{ animation: !showSplash ? `menuItemEntry 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) forwards ${index * 0.05}s` : 'none' }}
+            >
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="w-14 h-14 rounded-[1rem] neu-pressed overflow-hidden flex items-center justify-center shrink-0">
+                  <FallbackImage src={item.img} alt={item.name[lang]} icon={item.icon} isLarge={false} />
+                </div>
+                
+                <div className="flex flex-col w-full px-2 items-start" dir={textDir}>
+                  <h3 className={`text-[14px] font-bold text-[#2D3748] truncate w-full group-active:text-[#2B6CB0] transition-colors ${!isRtlLang ? 'font-eng' : ''}`}>
+                    {item.name[lang]}
                   </h3>
-                  <p className={`text-[13px] text-[#718096] leading-relaxed font-medium text-start ${!isRtlLang ? 'font-eng' : 'text-justify'}`}>
-                    {selectedItem.recipe[lang]}
-                  </p>
-                </div>
-
-                <div className="flex justify-between items-end px-2 mb-1" dir={textDir}>
-                  <span className={`text-[13px] text-[#A0AEC0] font-bold ${!isRtlLang ? 'font-eng' : ''}`}>{tr('price')}</span>
-                  <div className="flex items-center gap-1" dir={textDir}>
-                    <span className="text-2xl font-black text-[#2D3748] font-eng tracking-tight">{selectedItem.price}</span>
-                    <span className={`text-[10px] text-[#718096] mb-1 ${!isRtlLang ? 'font-eng' : ''}`}>{tr('currency')}</span>
+                  <div className="flex items-center gap-1 mt-1 text-[#2B6CB0] bg-[#E0E5EC] w-max px-2 py-0.5 rounded-md shadow-[inset_1px_1px_2px_rgba(163,177,198,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                    <Info size={10} />
+                    <span className={`text-[9px] font-bold text-[#718096] ${!isRtlLang ? 'font-eng' : ''}`}>{tr('viewRecipe')}</span>
                   </div>
                 </div>
               </div>
+              <div className="flex flex-col shrink-0 px-1 items-center" dir={textDir}>
+                <span className="text-[13px] font-black text-[#2D3748] font-eng tracking-tight">{item.price}</span>
+                <span className={`text-[9px] text-[#A0AEC0] mt-0.5 ${!isRtlLang ? 'font-eng' : ''}`}>{tr('currency')}</span>
+              </div>
             </div>
-          )}
-        </div>
-      );
-    }
+          ))}
+        </main>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-</body>
-</html>
+        {/* FOOTER */}
+        <footer className="px-5 mt-14 mb-8 opacity-0" style={{ animation: !showSplash ? `menuItemEntry 0.6s forwards 0.4s` : 'none' }}>
+          <div className="neu-flat rounded-[2rem] p-6">
+            <h2 className={`text-xs font-bold text-[#718096] mb-6 text-center relative ${!isRtlLang ? 'font-eng' : ''}`} dir={textDir}>
+              <span className="bg-[#E0E5EC] px-3 relative z-10">{tr('contact')}</span>
+              <div className="absolute top-1/2 left-0 w-full h-[1px] neu-pressed -z-0"></div>
+            </h2>
+            
+            <div className="flex justify-center gap-6">
+              <a href="tel:09121117177" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#4A5568]">
+                <Phone size={18} />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#E1306C]">
+                <Instagram size={18} />
+              </a>
+              <a href="#" className="relative w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#FF00A6]">
+                <ShoppingBag size={18} />
+                <div className={`absolute -bottom-5 text-[8px] font-bold text-[#718096] whitespace-nowrap ${!isRtlLang ? 'font-eng' : ''}`}>{tr('snappfood')}</div>
+              </a>
+            </div>
+            
+            <div className="mt-10 flex items-start gap-2 justify-center text-center">
+              <MapPin size={16} className="text-[#A0AEC0] mt-0.5 shrink-0" />
+              <p className={`text-[11px] text-[#718096] font-medium leading-relaxed whitespace-pre-line ${!isRtlLang ? 'font-eng' : ''}`} dir={textDir}>
+                {tr('address')}
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* --- RECIPE MODAL --- */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center neu-modal-bg p-5 transition-all duration-300">
+          <div 
+            className="w-full max-w-sm bg-[#E0E5EC] rounded-[2rem] p-5 sm:p-6 relative shadow-[15px_15px_40px_rgba(163,177,198,0.5),-15px_-15px_40px_rgba(255,255,255,0.6)]"
+            style={{ animation: 'minimalReveal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center w-full absolute top-5 px-5 left-0 box-border" dir={textDir}>
+              <button 
+                onClick={() => setSelectedItem(null)}
+                className="w-10 h-10 rounded-full neu-flat flex items-center justify-center text-[#718096]"
+              >
+                <X size={18} />
+              </button>
+              <button 
+                onClick={() => toggleLike(selectedItem.id)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${likedItems[selectedItem.id] ? 'neu-pressed text-red-500' : 'neu-flat text-[#718096]'}`}
+              >
+                <Heart size={16} fill={likedItems[selectedItem.id] ? "currentColor" : "none"} />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center mt-12 mb-6" dir={textDir}>
+              <div className="w-24 h-24 rounded-full neu-pressed overflow-hidden flex items-center justify-center mb-4 border-[3px] border-[#E0E5EC]">
+                <FallbackImage src={selectedItem.img} alt={selectedItem.name[lang]} icon={selectedItem.icon} isLarge={true} />
+              </div>
+              <h2 className={`text-xl font-black text-[#2D3748] text-center ${!isRtlLang ? 'font-eng' : ''}`}>{selectedItem.name[lang]}</h2>
+              <span className={`text-[10px] font-bold text-[#A0AEC0] mt-2 bg-[#E0E5EC] px-3 py-1 rounded-full neu-pressed ${!isRtlLang ? 'font-eng' : ''}`}>
+                {tr(selectedItem.catKey)}
+              </span>
+            </div>
+
+            <div className="neu-pressed rounded-2xl p-5 mb-6" dir={textDir}>
+              <h3 className={`text-[13px] font-bold text-[#2D3748] mb-2 flex items-center gap-1.5 ${!isRtlLang ? 'font-eng' : ''}`}>
+                <Droplet size={16} className="text-[#2B6CB0]" />
+                {tr('recipeDetails')}
+              </h3>
+              <p className={`text-[13px] text-[#718096] leading-relaxed font-medium text-start ${!isRtlLang ? 'font-eng' : 'text-justify'}`}>
+                {selectedItem.recipe[lang]}
+              </p>
+            </div>
+
+            <div className="flex justify-between items-end px-2 mb-1" dir={textDir}>
+              <span className={`text-[13px] text-[#A0AEC0] font-bold ${!isRtlLang ? 'font-eng' : ''}`}>{tr('price')}</span>
+              <div className="flex items-center gap-1" dir={textDir}>
+                <span className="text-2xl font-black text-[#2D3748] font-eng tracking-tight">{selectedItem.price}</span>
+                <span className={`text-[10px] text-[#718096] mb-1 ${!isRtlLang ? 'font-eng' : ''}`}>{tr('currency')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 ```
