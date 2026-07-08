@@ -1,0 +1,423 @@
+```react
+import React, { useState, useEffect } from 'react';
+import { Coffee, IceCream, CupSoda, Flame, Wind, MapPin, Phone, Instagram, X, Info, ShoppingBag, Utensils, Droplet, Croissant, Heart } from 'lucide-react';
+
+// --- DATA ---
+const menuData = [
+  { id: 1, name: 'اسپرسو ۱۰۰ عربیکا', price: '۲۰۰,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'عصاره‌گیری استاندارد از دانه‌های ۱۰۰٪ عربیکا با اسیدیته ملایم و عطر بالا.' },
+  { id: 2, name: 'اسپرسو ۸۰/۲۰ روبوستا', price: '۱۷۰,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'ترکیب ۸۰٪ عربیکا و ۲۰٪ روبوستا برای کافئین بیشتر و کرمای غلیظ‌تر.' },
+  { id: 3, name: 'اسپرسو ماکیاتو', price: '۱۸۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'یک شات اسپرسو به همراه مقدار کمی فوم شیر گرم.' },
+  { id: 4, name: 'هیزل نات ماکیاتو', price: '۲۴۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'ترکیب اسپرسو، شیر فرم گرفته و سیروپ فندق.' },
+  { id: 5, name: 'لاته', price: '۲۳۰,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'اسپرسو به همراه مقدار زیادی شیر گرم و لایه نازکی از فوم شیر.' },
+  { id: 6, name: 'کاپوچینو', price: '۲۲۰,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'نسبت مساوی از اسپرسو، شیر گرم و فوم شیر غلیظ.' },
+  { id: 7, name: 'کارامل ماکیاتو', price: '۲۴۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'شیر بخار داده شده، وانیل، اسپرسو و سس کارامل روی فوم.' },
+  { id: 8, name: 'موکا', price: '۲۴۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'ترکیب دلپذیر اسپرسو، پودر شکلات تلخ و شیر گرم.' },
+  { id: 9, name: 'سینامون لاته', price: '۲۴۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'لاته کلاسیک به همراه سیروپ و پودر دارچین تازه.' },
+  { id: 10, name: 'وانیلا لاته', price: '۲۴۵,۰۰۰', category: 'نوشیدنی گرم', icon: Coffee, recipe: 'لاته کلاسیک با عطر و طعم سیروپ وانیل فرانسوی.' },
+  { id: 18, name: 'هات چاکلت', price: '۱۸۵,۰۰۰', category: 'نوشیدنی گرم', icon: Flame, recipe: 'شکلات غلیظ و گرم، تهیه شده از بهترین پودر کاکائو.' },
+  { id: 19, name: 'وایت چاکلت', price: '۱۸۵,۰۰۰', category: 'نوشیدنی گرم', icon: Flame, recipe: 'نوشیدنی گرم و شیرین با پایه شکلات سفید و شیر.' },
+  
+  { id: 11, name: 'آیس لاته', price: '۲۴۵,۰۰۰', category: 'نوشیدنی سرد', icon: Wind, recipe: 'اسپرسو، شیر سرد و یخ؛ خنک و انرژی‌بخش.' },
+  { id: 12, name: 'تمامی قهوه‌ها (آیس)', price: '۲۶۰,۰۰۰', category: 'نوشیدنی سرد', icon: Wind, recipe: 'سرو تمامی آیتم‌های قهوه گرم به صورت سرد و یخی.' },
+  { id: 13, name: 'شیک قهوه', price: '۲۷۰,۰۰۰', category: 'نوشیدنی سرد', icon: IceCream, recipe: 'ترکیب بستنی وانیل، شات اسپرسو و شیر.' },
+  { id: 14, name: 'شیک شکلات', price: '۲۷۰,۰۰۰', category: 'نوشیدنی سرد', icon: IceCream, recipe: 'بستنی شکلاتی، شیر، پودر کاکائو و تکه‌های شکلات.' },
+  { id: 15, name: 'شیک پسته', price: '۳۰۰,۰۰۰', category: 'نوشیدنی سرد', icon: IceCream, recipe: 'بستنی، شیر و پسته خالص آسیاب شده.' },
+  { id: 16, name: 'شیک توت فرنگی', price: '۲۵۰,۰۰۰', category: 'نوشیدنی سرد', icon: IceCream, recipe: 'شیک میوه‌ای با توت‌فرنگی تازه و بستنی.' },
+  { id: 17, name: 'شیک بادوم زمینی', price: '۲۷۰,۰۰۰', category: 'نوشیدنی سرد', icon: IceCream, recipe: 'کره بادام زمینی، بستنی وانیل و شیر.' },
+  { id: 20, name: 'موهیتو', price: '۱۸۰,۰۰۰', category: 'نوشیدنی سرد', icon: CupSoda, recipe: 'ترکیب خنک لیمو ترش تازه، نعناع، سودا و یخ.' },
+  { id: 21, name: 'خیار سکنجبین', price: '۱۷۰,۰۰۰', category: 'نوشیدنی سرد', icon: CupSoda, recipe: 'نوشیدنی سنتی و خنک‌کننده با خیار رنده شده و شربت سکنجبین.' },
+  { id: 22, name: 'شربت خاکشیر', price: '۱۶۵,۰۰۰', category: 'نوشیدنی سرد', icon: CupSoda, recipe: 'خاکشیر شسته شده با گلاب، زعفران و یخ.' },
+  { id: 23, name: 'شربت بهارنارنج زعفران', price: '۱۹۰,۰۰۰', category: 'نوشیدنی سرد', icon: CupSoda, recipe: 'عرق بهارنارنج خالص، زعفران دم‌کرده و یخ.' },
+
+  { id: 24, name: 'کراسان کره ای', price: '۸۵,۰۰۰', category: 'نان و شیرینی', icon: Utensils, recipe: 'نان کراسان تازه و لایه‌لایه با کره حیوانی پخت روز.' },
+  { id: 25, name: 'چیزکیک سن سباستین', price: '۱۶۰,۰۰۰', category: 'نان و شیرینی', icon: Utensils, recipe: 'چیزکیک برشته شده با بافت کرمی به همراه سس شکلات.' },
+];
+
+const categories = ['نوشیدنی گرم', 'نوشیدنی سرد', 'نان و شیرینی'];
+
+export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [splashPhase, setSplashPhase] = useState(0); 
+  const [activeCategory, setActiveCategory] = useState('نوشیدنی گرم');
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [likedItems, setLikedItems] = useState({});
+
+  // Splash Screen Logic (7.5s Total for a smooth experience)
+  useEffect(() => {
+    if (showSplash) {
+      const t1 = setTimeout(() => setSplashPhase(1), 500);   // Bean drops (smaller)
+      const t2 = setTimeout(() => setSplashPhase(2), 1500);  // Subtle Grind
+      const t3 = setTimeout(() => setSplashPhase(3), 2500);  // Bean fades
+      const t4 = setTimeout(() => setSplashPhase(4), 3000);  // Minimalist Cup & Croissant Table setup
+      const t5 = setTimeout(() => setSplashPhase(5), 4500);  // Text Reveals
+      const t6 = setTimeout(() => setSplashPhase(6), 6500);  // Start fade out
+      const t7 = setTimeout(() => setShowSplash(false), 7500); // Unmount
+
+      return () => {
+        clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); 
+        clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); clearTimeout(t7);
+      };
+    }
+  }, [showSplash]);
+
+  useEffect(() => {
+    if (selectedItem || showSplash) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => document.body.style.overflow = 'unset';
+  }, [selectedItem, showSplash]);
+
+  const filteredMenu = menuData.filter(item => item.category === activeCategory);
+
+  const toggleLike = (id) => {
+    setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  return (
+    <div dir="rtl" className="min-h-screen bg-[#E0E5EC] font-sans text-[#4A5568] selection:bg-gray-300 relative pb-24 overflow-x-hidden">
+      {/* CSS STYLES */}
+      <style>{`
+        @import url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Montserrat:wght@300;400;500;700&display=swap');
+        
+        body {
+          font-family: 'Vazir', sans-serif;
+          background-color: #E0E5EC;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-eng { font-family: 'Montserrat', sans-serif; }
+        .font-serif-eng { font-family: 'Playfair Display', serif; }
+
+        /* NEUMORPHISM PURE (White/Light Theme) */
+        .neu-flat {
+          background: #E0E5EC;
+          box-shadow: 8px 8px 14px rgb(163,177,198,0.6), 
+                     -8px -8px 14px rgba(255,255,255, 0.6);
+          transition: all 0.3s ease;
+        }
+        .neu-flat:active {
+          box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.6),
+                      inset -4px -4px 8px rgba(255,255,255, 0.8);
+        }
+
+        .neu-pressed {
+          background: #E0E5EC;
+          box-shadow: inset 5px 5px 10px 0 rgba(163,177,198, 0.7),
+                      inset -5px -5px 10px 0 rgba(255,255,255, 0.8);
+          transition: all 0.3s ease;
+        }
+
+        .neu-modal-bg {
+          background: rgba(224, 229, 236, 0.8);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* SPLASH SCREEN ANIMATIONS */
+        @keyframes beanDropSmall {
+          0% { transform: translateY(-80px) scale(0.2); opacity: 0; }
+          60% { transform: translateY(5px) scale(0.9); opacity: 1; }
+          100% { transform: translateY(0) scale(0.8); opacity: 1; }
+        }
+        @keyframes subtleGrind {
+          0%, 100% { transform: scale(0.8) rotate(0deg); }
+          15%, 45%, 75% { transform: scale(0.8) translateX(-2px) rotate(-6deg); }
+          30%, 60%, 90% { transform: scale(0.8) translateX(2px) rotate(6deg); }
+        }
+        @keyframes fadeOutFast {
+          0% { opacity: 1; transform: scale(0.8); }
+          100% { opacity: 0; transform: scale(0.5); }
+        }
+        @keyframes minimalReveal {
+          0% { opacity: 0; transform: translateY(10px) scale(0.95); filter: blur(3px); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        @keyframes letterReveal {
+          0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes subtitleReveal {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes splashMasterFade {
+          0% { opacity: 1; backdrop-filter: blur(0px); }
+          100% { opacity: 0; backdrop-filter: blur(8px); visibility: hidden; }
+        }
+        @keyframes menuItemEntry {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes splashProgress {
+          0% { width: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { width: 100%; opacity: 1; }
+          100% { width: 100%; opacity: 0; }
+        }
+
+        .animate-bean-drop { animation: beanDropSmall 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .animate-bean-shake { animation: subtleGrind 1s ease-in-out forwards; }
+        .animate-fade-fast { animation: fadeOutFast 0.5s ease-out forwards; }
+        .animate-minimal-in { animation: minimalReveal 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards; }
+        
+        .coffee-bean-brown-small {
+          width: 30px; /* Smaller */
+          height: 45px; /* Smaller */
+          background: #7B3F00;
+          border-radius: 50%;
+          position: relative;
+          box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), 4px 4px 10px rgba(163,177,198,0.5);
+        }
+        .coffee-bean-brown-small::after {
+          content: '';
+          position: absolute;
+          top: 5%;
+          left: 45%;
+          width: 10%;
+          height: 90%;
+          background: rgba(0,0,0,0.4);
+          border-radius: 50%;
+          transform: rotate(12deg);
+        }
+
+        .darbari-tracking { letter-spacing: 0.4em; }
+      `}</style>
+
+      {/* --- SPLASH SCREEN (MINIMAL & PURE) --- */}
+      {showSplash && (
+        <div 
+          className="fixed inset-0 z-[60] bg-[#E0E5EC] flex flex-col items-center justify-center"
+          style={{ animation: splashPhase >= 6 ? 'splashMasterFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none' }}
+        >
+          <div className="relative w-48 h-48 flex items-center justify-center mb-6">
+            
+            {/* Phase 1 & 2 & 3: Smaller Bean Drops, Subtle Shake, Fades */}
+            {splashPhase >= 1 && splashPhase <= 3 && (
+              <div className={`absolute ${splashPhase === 3 ? 'animate-fade-fast' : splashPhase === 2 ? 'animate-bean-shake' : 'animate-bean-drop'}`}>
+                <div className="coffee-bean-brown-small"></div>
+              </div>
+            )}
+
+            {/* Phase 4+: Minimalist Table Setup (Cup + Croissant) */}
+            {splashPhase >= 4 && (
+              <div className="absolute animate-minimal-in flex items-end gap-5 text-[#4A5568]">
+                {/* Cup */}
+                <div className="flex flex-col items-center">
+                  <Coffee size={40} strokeWidth={1} />
+                  <div className="mt-2 w-10 h-[2px] rounded-full neu-pressed opacity-70"></div>
+                </div>
+                {/* Croissant */}
+                <div className="flex flex-col items-center pb-0.5">
+                  <Croissant size={32} strokeWidth={1} className="text-[#718096]" />
+                  <div className="mt-1.5 w-8 h-[2px] rounded-full neu-pressed opacity-70"></div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="h-24 flex flex-col items-center justify-center">
+            {splashPhase >= 5 && (
+              <>
+                <h1 className="font-eng font-light text-xl sm:text-2xl text-[#2D3748] uppercase darbari-tracking flex ml-2">
+                  {['D','A','R','B','A','R','I'].map((letter, index) => (
+                    <span 
+                      key={index} 
+                      className="inline-block opacity-0"
+                      style={{ 
+                        animation: `letterReveal 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards`,
+                        animationDelay: `${index * 0.08}s` 
+                      }}
+                    >
+                      {letter}
+                    </span>
+                  ))}
+                </h1>
+                <h2 
+                  className="font-serif-eng italic text-xs sm:text-sm text-[#718096] mt-4 opacity-0 tracking-[0.25em] ml-1" 
+                  style={{ animation: 'subtitleReveal 1s ease-out forwards 0.8s' }}
+                >
+                  Cafe & Bakery
+                </h2>
+              </>
+            )}
+          </div>
+
+          {/* Minimalist Progress Bar */}
+          <div className="absolute bottom-12 w-32 h-[2px] neu-pressed rounded-full overflow-hidden">
+             <div className="h-full bg-[#A0AEC0]" style={{ animation: 'splashProgress 7.5s ease-in-out forwards' }}></div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MAIN APP CONTENT --- */}
+      <div 
+        className="transition-all duration-1000 ease-in-out pb-8"
+        style={{ 
+          opacity: showSplash ? 0 : 1, 
+          filter: showSplash ? 'blur(8px)' : 'blur(0)',
+          pointerEvents: showSplash ? 'none' : 'auto'
+        }}
+      >
+        {/* HEADER */}
+        <header className="pt-8 pb-6 px-6 sticky top-0 z-10 bg-[#E0E5EC]/85 backdrop-blur-xl border-b border-white/30">
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col">
+              <h1 className="text-xl font-black text-[#2D3748] tracking-tight">کافه درباری</h1>
+              <p className="font-eng text-[9px] text-[#718096] mt-1 font-medium tracking-[0.2em]">DARBARI CAFE</p>
+            </div>
+            <div className="w-10 h-10 rounded-full neu-flat flex items-center justify-center text-[#2D3748]">
+              <Coffee size={20} strokeWidth={1.5} />
+            </div>
+          </div>
+        </header>
+
+        {/* CATEGORIES */}
+        <section className="px-4 py-5 sticky top-[88px] z-10 bg-[#E0E5EC]/95 backdrop-blur-md">
+          <div className="flex justify-between gap-3">
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex-1 py-3 px-1 rounded-2xl text-[12px] sm:text-[13px] font-bold transition-all duration-300 flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
+                    isActive 
+                      ? 'neu-pressed text-[#2B6CB0]' 
+                      : 'neu-flat text-[#718096]'
+                  }`}
+                >
+                  {cat === 'نوشیدنی گرم' && <Flame size={16} className={isActive ? 'animate-pulse' : ''} />}
+                  {cat === 'نوشیدنی سرد' && <Wind size={16} />}
+                  {cat === 'نان و شیرینی' && <Croissant size={16} />}
+                  <span className="truncate pt-0.5">{cat}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* MENU ITEMS LIST */}
+        <main className="px-5 space-y-4 mt-2">
+          {filteredMenu.map((item, index) => (
+            <div 
+              key={item.id} 
+              onClick={() => setSelectedItem(item)}
+              className="neu-flat rounded-3xl p-4 flex items-center justify-between cursor-pointer opacity-0"
+              style={{ 
+                animation: !showSplash ? `menuItemEntry 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) forwards ${index * 0.05}s` : 'none',
+              }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl neu-pressed flex items-center justify-center text-[#718096]">
+                  <item.icon size={20} strokeWidth={1.5} />
+                </div>
+                <div className="flex flex-col pl-2">
+                  <h3 className="text-[14px] font-bold text-[#2D3748]">{item.name}</h3>
+                  <div className="flex items-center gap-1 mt-1 text-[#2B6CB0] bg-[#E0E5EC] w-max px-2 py-0.5 rounded-md shadow-[inset_1px_1px_2px_rgba(163,177,198,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                    <Info size={10} />
+                    <span className="text-[9px] font-bold text-[#718096]">مشاهده رسپی</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-end pr-1">
+                <span className="text-sm font-black text-[#2D3748]">{item.price}</span>
+                <span className="text-[9px] text-[#A0AEC0] mt-0.5">تومان</span>
+              </div>
+            </div>
+          ))}
+        </main>
+
+        {/* FOOTER */}
+        <footer className="px-5 mt-14 mb-8 opacity-0" style={{ animation: !showSplash ? `menuItemEntry 0.6s forwards 0.4s` : 'none' }}>
+          <div className="neu-flat rounded-[2rem] p-6">
+            <h2 className="text-xs font-bold text-[#718096] mb-6 text-center relative">
+              <span className="bg-[#E0E5EC] px-3 relative z-10">راه‌های ارتباطی</span>
+              <div className="absolute top-1/2 left-0 w-full h-[1px] neu-pressed -z-0"></div>
+            </h2>
+            
+            <div className="flex justify-center gap-6">
+              <a href="tel:09121117177" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#4A5568]">
+                <Phone size={18} />
+              </a>
+              <a href="#" className="w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#E1306C]">
+                <Instagram size={18} />
+              </a>
+              <a href="#" className="relative w-12 h-12 rounded-full neu-flat flex items-center justify-center text-[#FF00A6]">
+                <ShoppingBag size={18} />
+                <div className="absolute -bottom-5 text-[8px] font-bold text-[#718096] whitespace-nowrap">اسنپ‌فود</div>
+              </a>
+            </div>
+            
+            <div className="mt-10 flex items-start gap-2 justify-center text-center">
+              <MapPin size={16} className="text-[#A0AEC0] mt-0.5 shrink-0" />
+              <p className="text-[11px] text-[#718096] font-medium leading-relaxed">
+                شهرک راه آهن، میدان اتریش<br/>کافه درباری
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* --- RECIPE MODAL (CENTERED) --- */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center neu-modal-bg p-5 transition-all duration-300">
+          <div 
+            className="w-full max-w-sm bg-[#E0E5EC] rounded-[2rem] p-5 sm:p-6 relative shadow-[15px_15px_40px_rgba(163,177,198,0.5),-15px_-15px_40px_rgba(255,255,255,0.6)]"
+            style={{ animation: 'minimalReveal 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center w-full absolute top-5 px-5 left-0 box-border">
+              <button 
+                onClick={() => setSelectedItem(null)}
+                className="w-10 h-10 rounded-full neu-flat flex items-center justify-center text-[#718096]"
+              >
+                <X size={18} />
+              </button>
+              {/* Like Button */}
+              <button 
+                onClick={() => toggleLike(selectedItem.id)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${likedItems[selectedItem.id] ? 'neu-pressed text-red-500' : 'neu-flat text-[#718096]'}`}
+              >
+                <Heart size={16} fill={likedItems[selectedItem.id] ? "currentColor" : "none"} />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center mt-12 mb-6">
+              <div className="w-20 h-20 rounded-full neu-pressed flex items-center justify-center text-[#2B6CB0] mb-4">
+                <selectedItem.icon size={32} strokeWidth={1} />
+              </div>
+              <h2 className="text-xl font-black text-[#2D3748] text-center">{selectedItem.name}</h2>
+              <span className="text-[10px] font-bold text-[#A0AEC0] mt-2 bg-[#E0E5EC] px-3 py-1 rounded-full neu-pressed">
+                {selectedItem.category}
+              </span>
+            </div>
+
+            <div className="neu-pressed rounded-2xl p-5 mb-6">
+              <h3 className="text-[13px] font-bold text-[#2D3748] mb-2 flex items-center gap-1.5">
+                <Droplet size={16} className="text-[#2B6CB0]" />
+                ترکیبات و رسپی
+              </h3>
+              <p className="text-[13px] text-[#718096] leading-relaxed text-justify font-medium">
+                {selectedItem.recipe}
+              </p>
+            </div>
+
+            <div className="flex justify-between items-end px-2 mb-1">
+              <span className="text-[13px] text-[#A0AEC0] font-bold">قیمت:</span>
+              <div className="flex items-center gap-1">
+                <span className="text-2xl font-black text-[#2D3748]">{selectedItem.price}</span>
+                <span className="text-[10px] text-[#718096] mb-1">تومان</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+```
